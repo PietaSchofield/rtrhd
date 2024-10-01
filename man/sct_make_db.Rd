@@ -9,9 +9,13 @@ sct_make_db(
   txtPath,
   db = F,
   ow = T,
-  pref = NULL,
-  postf = NULL,
-  include = c("concept", "description", "relationship", "textdefinition")
+  preterm = NULL,
+  posterm = NULL,
+  prerefs = NULL,
+  posrefs = NULL,
+  incterm = c("concept", "description", "relationship", "textdefinition"),
+  increfs = c("language", "association", "extendedmap", "simplemap", "extendedmap_1",
+    "simple")
 )
 }
 \description{
