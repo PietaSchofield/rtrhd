@@ -4,7 +4,7 @@
 \alias{drop_table}
 \title{drop table}
 \usage{
-drop_table(dbif, tabnames)
+drop_table(dbf, tab_name)
 }
 \description{
 drop table
