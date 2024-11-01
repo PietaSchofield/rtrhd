@@ -7,6 +7,7 @@
 sct_make_db(
   dbPath,
   txtPath,
+  dbName = NULL,
   db = F,
   ow = T,
   preterm = NULL,
