@@ -1,7 +1,7 @@
 #' make a duckdb 
 #'
 #' @export
-dmplusd_make_db <- function(filePath,dbPath=dirname(filePath),wks=3,db=F,ow=F){
+dmplusd_make_db <- function(filePath,dbPath=dirname(filePath),dbName=NULL,wks=3,db=F,ow=F){
 
   if(db){
     db <- T
@@ -13,7 +13,9 @@ dmplusd_make_db <- function(filePath,dbPath=dirname(filePath),wks=3,db=F,ow=F){
 
   xmlpath <- file.path(filePath,"xml")
   ver <- gsub("(^f_vtm2_|[.]xml$)","", list.files(xmlpath,pattern="f_vtm")[1])
-  dbName <- file.path(dbPath,paste0("dmplusd_",ver,".duckdb"))
+  if(is.null(dbName)){
+    dbName <- file.path(dbPath,paste0("dmplusd_",ver,".duckdb"))
+  }
   if(!file.exists(dbName)| ow){
     tabs <- rtrhd::list_tables(dbf=dbName)
 

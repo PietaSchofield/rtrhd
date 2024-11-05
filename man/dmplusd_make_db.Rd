@@ -4,7 +4,14 @@
 \alias{dmplusd_make_db}
 \title{make a duckdb}
 \usage{
-dmplusd_make_db(filePath, dbPath = dirname(filePath), wks = 3, db = F, ow = F)
+dmplusd_make_db(
+  filePath,
+  dbPath = dirname(filePath),
+  dbName = NULL,
+  wks = 3,
+  db = F,
+  ow = F
+)
 }
 \description{
 make a duckdb
