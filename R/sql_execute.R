@@ -1,7 +1,7 @@
 #' execute and sql file in a duckdb
 #'
 #' @export
-sql_execute <- function(dbf,sql_make,sql_query,sql_drop,db=F){
+sql_execute <- function(dbf,sql_make,sql_query=NULL,sql_drop=NULL,db=F){
   if(db){
     dbf <- adb
     sql_make <- make_sql
@@ -18,8 +18,14 @@ sql_execute <- function(dbf,sql_make,sql_query,sql_drop,db=F){
   nret <- DBI::dbExecute(con, sql_make)
 
 # Fetch results if the query is a SELECT
-  res <- DBI::dbGetQuery(con, sql_query) %>% as_tibble()
-  nret <- DBI::dbExecute(con, sql_drop)
+  if(!is.null(sql_query)){
+    res <- DBI::dbGetQuery(con, sql_query) %>% as_tibble()
+  }else{
+    res <- nret
+  }
+  if(!is.null(sql_drop)){
+    nret <- DBI::dbExecute(con, sql_drop)
+  }
   duckdb::dbDisconnect(con,shutdown=T)
   return(res)
 }

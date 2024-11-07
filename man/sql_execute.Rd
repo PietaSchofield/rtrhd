@@ -4,7 +4,7 @@
 \alias{sql_execute}
 \title{execute and sql file in a duckdb}
 \usage{
-sql_execute(dbf, sql_make, sql_query, sql_drop, db = F)
+sql_execute(dbf, sql_make, sql_query = NULL, sql_drop = NULL, db = F)
 }
 \description{
 execute and sql file in a duckdb
