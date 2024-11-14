@@ -18,7 +18,7 @@ plot_sankey <- function(datalist,sankeyFile,silent=T,db=F){
     Value = "value", NodeID = "name",
     units = "patients", fontSize = 30, 
     nodeWidth = 30,width=2400,height=800,
-    nodePadding=20
+    nodePadding=50
   )
 
   interval_labels <- jsonlite::toJSON(timeint)
@@ -32,8 +32,8 @@ plot_sankey <- function(datalist,sankeyFile,silent=T,db=F){
 
         // Set approximate x-position for the diagnosis line
         // Define padding for top (for title) and bottom (for interval labels)
-        var topPadding = 100;  // Adjust this value as needed
-        var bottomPadding = 10;  // Adjust this as well
+        var topPadding = 0;  // Adjust this value as needed
+        var bottomPadding = 0;  // Adjust this as well
         var svg = d3.select(el).select('svg');
         var svgWidth = svg.node().getBoundingClientRect().width;
         var svgHeight = svg.node().getBoundingClientRect().height + topPadding + bottomPadding;
