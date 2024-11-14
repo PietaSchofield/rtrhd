@@ -12,7 +12,7 @@ as well
 ## Install 
 
 ```
-  devtools::install_github("PietaSchofield/rtrhd", build_vignettes = TRUE)
+  devtools::install_github("PietaSchofield/rtrhd")
 ```
 
 ## Disclaimer
