@@ -1,0 +1,112 @@
+---
+title: "R Tools for Routine Healthcare Data"
+author: "Pieta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Motivation
+
+I currently have several CPRD project using Aurum, I will also have a GOLD project soon. There are some
+common steps that need to be achieved with these projects. Mainly the ability to link HES data and to be
+able to clean values in the observations tables.
+
+The idea is that if I can import the data into an sqlite database it will permit the use of SQL to join
+and extract data for the process of linkage and cleaning. 
+
+It is possible that a second sqlite database will be created for the analysis data but the pre-processing
+can be done partly in SQL. These project are all going to be too large to do the type of queries I want
+in memory.
+
+## Setup
+
+I have access to the CPRD Aurum Synthetic Dataset which I will copy and place in a location 
+
+### Paths
+
+```{r}
+require(rtrhd)
+require(tidyverse)
+require(ggplot2)
+```
+
+### Make the DuckDb
+
+I will use the duckdb package because it is reasonalbly fast for some analytics processing. It is
+slightly better tuned to this task than the current itteration of SQLite and I am not going to write this
+to be flexible enough to use a generic DBI SQL connection. I will leave that as a task for the dedicated
+and just make the source code fully available
+
+<div style='text-align: right'>**R code**</div>
+
+```{r}
+dbName <- "Aurum_Sythetic_Data.duckdb"
+dbPath <- file.path(Sys.getenv("HOME"),"Projects","rtrhd")
+patient_data <- file.path(dbPath,"Aurum_Synthetic_Data","patient_data")
+lookup_data <- file.path(dbPath,"Aurum_Synthetic_Data","lookups")
+  
+synthdataDb <- rtrhd::make_aurum_database(dbName,dbPath,
+                 patient_path=file.path(data_path,"patient_data"),
+                 lookup_path=file.path(data_path,"lookups"))
+```
+
+This function wraps a bunch of functions that load the individual tables
+
+<div style='text-align: right'>**R code**</div>
+
+```{r}
+tables <- rtrhd::list_tables(synthdataDb)
+tables %>% kableExtra::kable()
+```
+
+It is now possible to run SQL against this database
+
+<div style='text-align: right'>**R code**</div>
+
+```{r}
+## START SQL BLOCK
+rtrhd::list_fields(dbf=synthdataDb,tab="observations")
+unnamed_sql <- str_c("SELECT DISTINCT
+  p.patid,
+  COUNT(o.medcodeid) AS observations
+FROM
+  patients AS p
+INNER JOIN
+  observations AS o
+  ON p.patid=o.patid
+GROUP BY
+  p.patid")
+tmp_sqlfile <- rtrhd::link_sql(unnamed_sql)
+```
+
+<div style='text-align: right'>**SQL code**</div>
+
+```{sql, eval=F, file=tmp_sqlfile}
+```
+
+<div style='text-align: right'>**R code**</div>
+
+```{r fig.width=10,fig.height=6}
+rtrhd::unlink_sql(tmp_sqlfile)
+res <- rtrhd::get_table(dbf=synthdataDb,sqlstr=unnamed_sql)
+res %>% ggplot(aes(x=observations)) + geom_histogram(binwidth=10,fill="blue",colour="black",alpha=0.7) +
+  labs(title="Distribution of Observation Counts Per Patient",
+       x="Number of Observations",
+       y="Frequency") + theme_minimal()
+## END SQL BLOCK
+```
+
+
+
+

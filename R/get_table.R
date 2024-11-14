@@ -24,9 +24,9 @@ get_table <- function(dbf,sqlstr=NULL,tabname=NULL,fields='*',whereclause=NULL){
   }else{
     strsql <- sqlstr
   }
-  dbi <- dbConnect(duckdb(),dbf)
-  pats <- dbGetQuery(dbi,strsql) %>% tibble()
-  dbDisconnect(dbi)
+  dbi <- duckdb::dbConnect(duckdb::duckdb(),dbf)
+  pats <- DBI::dbGetQuery(dbi,strsql) %>% tibble()
+  duckdb::dbDisconnect(dbi, shutdown=T)
   return(pats)
 }
       

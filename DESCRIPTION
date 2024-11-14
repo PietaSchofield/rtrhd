@@ -6,11 +6,12 @@ Authors@R:
            comment = c(ORCID = "0000-0002-6398-2537"))
 Description: This is a collection of convenience functions generally for turning routinely collected
   health care data from sources like CPRD into duckdb databases to enable SQL based filtering and selection
- qfor downstream analysis in R. It also has some tools for importing NHSBSA DM Plus D xml files into a
+  for downstream analysis in R. It also has some tools for importing NHSBSA DM Plus D xml files into a
   duckdb and for importing SNOMED CT files into a duckdb as well as manipulation CPRD denominator and
   linkage files to generate control cohorts (but these are possibly too project specific to be generalise)
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    use_mit_license("Pieta Schofield")
+VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
