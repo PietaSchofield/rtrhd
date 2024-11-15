@@ -21,14 +21,14 @@ knitr::opts_chunk$set(
 I currently have several CPRD project using Aurum, I will also have a GOLD project soon. There are some
 common steps that need to be achieved with these projects. 
 
-The idea is that if I can import the data into an [DuckDB](duckdb) database it will permit the use of 
+The idea is that if I can import the data into an [DuckDB][duckdb] database it will permit the use of 
 SQL to join and extract data for the process of linkage and cleaning. This also means the original text
 files need only be visited once. Some projects have billions of observation records so managing them in
-memory in R is not really feasible. DuckDB also has [a well documented R api](duckrapi) and some very
+memory in R is not really feasible. DuckDB also has [a well documented R api][duckrapi] and some very
 nifty SQL dialect aspects that are worth discovering. Its biggest frustration for me at the moment is
 that it seems to have a 1024 character limit on SQL statements and many of my SQL statements are more
 complex that that permits. So I have to do some queries in steps creating temporary tables rather than
-one big query. I am not sure if investing the time to learn [dbplyr](dplyr) might be a neat tidyverse
+one big query. I am not sure if investing the time to learn [dbplyr][dbplyr] might be a neat tidyverse
 solution to this, but I have been using SQL for almost 40 years and perhaps I getting long in the tooth
 to learn quite so many new tricks.
 
@@ -46,7 +46,7 @@ There are a suite of matching GOLD data processing functions that as yet have no
 
 ## Install
 
-It is available at GitHub [https://github.com/PietaSchofield/rtrhd](rtrhdgh)
+It is available at GitHub [https://github.com/PietaSchofield/rtrhd][rtrhdgh]
 
 <div style='text-align: right'>**R code**</div>
 

@@ -9,20 +9,21 @@ I currently have several CPRD project using Aurum, I will also have a
 GOLD project soon. There are some common steps that need to be achieved
 with these projects.
 
-The idea is that if I can import the data into an [DuckDB](duckdb)
-database it will permit the use of SQL to join and extract data for the
-process of linkage and cleaning. This also means the original text files
-need only be visited once. Some projects have billions of observation
-records so managing them in memory in R is not really feasible. DuckDB
-also has [a well documented R api](duckrapi) and some very nifty SQL
+The idea is that if I can import the data into an
+[DuckDB](https://github.com/duckdb/duckdb) database it will permit the
+use of SQL to join and extract data for the process of linkage and
+cleaning. This also means the original text files need only be visited
+once. Some projects have billions of observation records so managing
+them in memory in R is not really feasible. DuckDB also has [a well
+documented R api](https://duckdb.org/docs/api/r) and some very nifty SQL
 dialect aspects that are worth discovering. Its biggest frustration for
 me at the moment is that it seems to have a 1024 character limit on SQL
 statements and many of my SQL statements are more complex that that
 permits. So I have to do some queries in steps creating temporary tables
 rather than one big query. I am not sure if investing the time to learn
-[dbplyr](dplyr) might be a neat tidyverse solution to this, but I have
-been using SQL for almost 40 years and perhaps I getting long in the
-tooth to learn quite so many new tricks.
+[dbplyr](https://dbplyr.tidyverse.org/) might be a neat tidyverse
+solution to this, but I have been using SQL for almost 40 years and
+perhaps I getting long in the tooth to learn quite so many new tricks.
 
 **NB. DuckDB can take a long time to install, a longer time than you
 think is reasonable but I have never had it crash on installing so be
@@ -41,8 +42,7 @@ have not been imported
 
 ## Install
 
-It is available at GitHub
-[https://github.com/PietaSchofield/rtrhd](rtrhdgh)
+It is available at GitHub <https://github.com/PietaSchofield/rtrhd>
 
 <div style="text-align: right">
 
@@ -54,15 +54,28 @@ It is available at GitHub
 if(!require("remotes")){
   install.packages("remotes")
 }
+#> Loading required package: remotes
 if(!require("tidyverse")){
   install.packages("tidyverse")
 }
+#> Loading required package: tidyverse
+#> ── Attaching core tidyverse packages ──────────────────────────────────────────────────────── tidyverse 2.0.0 ──
+#> ✔ dplyr     1.1.4     ✔ readr     2.1.5
+#> ✔ forcats   1.0.0     ✔ stringr   1.5.1
+#> ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+#> ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+#> ✔ purrr     1.0.2     
+#> ── Conflicts ────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
+#> ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 if(!require("ggplot2")){
   install.packages("ggplot2")
 }
 if(!require("rtrhd")){
   remotes::install_github("PietaSchofield/rtrhd")
 }
+#> Loading required package: rtrhd
 ```
 
 ## Setup
