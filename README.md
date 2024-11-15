@@ -61,8 +61,12 @@ if(!require("rtrhd")){
 
 ## Setup
 
-I have access to the CPRD Aurum Synthetic Dataset which I will copy and
-place in a location
+I have access to the CPRD Aurum Synthetic Dataset which I will I can
+share with folk at Liverpool University as we have Multi-Study License.
+But I cannot distribute with this package. It is what I use in this
+demo. Unfortunately it only has single files for each table unlike the
+usual many many observation and drug_issue files. So it doesn’t totally
+test the functionality of the table load functions.
 
 ### Paths
 
