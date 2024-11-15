@@ -9,9 +9,17 @@ Description: This is a collection of convenience functions generally for turning
   for downstream analysis in R. It also has some tools for importing NHSBSA DM Plus D xml files into a
   duckdb and for importing SNOMED CT files into a duckdb as well as manipulation CPRD denominator and
   linkage files to generate control cohorts (but these are possibly too project specific to be generalise)
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    use_mit_license("Pieta Schofield")
+License: MIT + file LICENSE
 VignetteBuilder: knitr
+Imports:
+  tidyverse,
+  dplyr,
+  lubridate,
+  duckdb,
+  plyr,
+  kableExtra,
+  ggplot2,
+  reticulate
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

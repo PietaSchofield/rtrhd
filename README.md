@@ -9,11 +9,24 @@ I currently have several CPRD project using Aurum, I will also have a
 GOLD project soon. There are some common steps that need to be achieved
 with these projects.
 
-The idea is that if I can import the data into an [duckdb](duckdb)
+The idea is that if I can import the data into an [DuckDB](duckdb)
 database it will permit the use of SQL to join and extract data for the
 process of linkage and cleaning. This also means the original text files
 need only be visited once. Some projects have billions of observation
-records so managing them in memory in R is not really feasible.
+records so managing them in memory in R is not really feasible. DuckDB
+also has [a well documented R api](duckrapi) and some very nifty SQL
+dialect aspects that are worth discovering. Its biggest frustration for
+me at the moment is that it seems to have a 1024 character limit on SQL
+statements and many of my SQL statements are more complex that that
+permits. So I have to do some queries in steps creating temporary tables
+rather than one big query. I am not sure if investing the time to learn
+[dbplyr](dplyr) might be a neat tidyverse solution to this, but I have
+been using SQL for almost 40 years and perhaps I getting long in the
+tooth to learn quite so many new tricks.
+
+**NB. DuckDB can take a long time to install, a longer time than you
+think is reasonable but I have never had it crash on installing so be
+patient**
 
 ## Caveat
 
@@ -204,12 +217,45 @@ res %>% ggplot(aes(x=observations)) + geom_histogram(binwidth=10,fill="blue",col
 ## END SQL BLOCK
 ```
 
+## Other Stuff
+
+There are several functions for importing SNOMED CT and DMplusD data
+available from TRUD. However the current manefestation of the DMplusD
+import uses R to import the xml files and this is very very slow unless
+your computer is powerful and a has a lot of memory. It still takes
+significant time on my 20 core 64GB RAM machine. I have found a quicker
+way to do this using calls to python scripts but this is not fully
+implemented yet.
+
+Talking of slow. Duckdb takes a long time to install first time round
+and when it update it can also be slow but I think it is worth it.
+
+## Finally
+
+This has been developed on linux and not install and tested on windows
+or mac so there is not guarantee it will work. It is actively being
+developed and while I will probably try to not change functionality it
+is definitely a moving target and as such I haven’t yet started to
+version control it. It is currently morphing on a bleeding edge model.
+If anyone else does actually start using it I will make the effort to
+change to a release model. But as I am the only user at the moment it
+hasn’t seemed necessary.
+
+I also haven’t done clean install to check that I have all the
+dependencies in the Imports list so there maybe some I haven’t caught
+yet.
+
 ``` r
 homeDir <- Sys.getenv("HOME")
-inputpath <- file.path(homeDir,"GitLab","rtrhd","vignettes")
+packagepath <- file.path(homeDir,"GitLab","rtrhd")
+inputpath <- file.path(packagepath,"vignettes")
 inputFile <- file.path(inputpath,"rtrhd_demo.Rmd")
 noteDir <- file.path("/srv","http","uol","rtrhd")
 
 fdisp <- rmarkdown::render(inputFile,encoding=encoding,output_dir=noteDir,clean=T)
+
+
+rmarkdown::render(inputFile, output_format = "github_document", output_file = "README.md",
+                  output_dir = packagepath)
 browseURL(fdisp)
 ```
