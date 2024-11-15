@@ -10,19 +10,19 @@ smooth collaboration.
 This project uses a **branching model** to keep the codebase organized and stable:
 
 - **`main`**: This branch contains the stable, production-ready code. Do not directly commit to `main`.
-- **`dev`**: The main development branch. All new features and bug fixes should branch off `dev` and be
-  merged back into `dev` after testing.
+- **`dev_pgs`**: The main development branch. All new features and bug fixes should branch off `dev_pgs`
+  and be merged back into `dev_pgs` after testing.
 - **Feature Branches**: Short-lived branches for specific tasks. Use the naming convention
   `feature/your-feature-name`.
 
 ### Workflow for Contributions
 
-1. **Branch Off `dev`**:
+1. **Branch Off `dev_pgs`**:
 
-   - Always create a new branch for your work, branching off `dev`:
+   - Always create a new branch for your work, branching off `dev_pgs`:
 
      ```bash
-     git checkout dev
+     git checkout dev_pgs
      git checkout -b feature/your-feature-name
      ```
 
@@ -45,7 +45,7 @@ This project uses a **branching model** to keep the codebase organized and stabl
 
 4. **Open a Pull Request (PR)**:
 
-   - Go to GitHub and open a PR to merge your feature branch into `dev`.
+   - Go to GitHub and open a PR to merge your feature branch into `dev_pgs`.
    - Provide a clear description of what your changes do.
 
 5. **Code Review**:
@@ -55,7 +55,7 @@ This project uses a **branching model** to keep the codebase organized and stabl
 
 6. **Merge**:
 
-   - Once approved, your changes will be merged into `dev`.
+   - Once approved, your changes will be merged into `dev_pgs`.
 
 ---
 
@@ -63,13 +63,13 @@ This project uses a **branching model** to keep the codebase organized and stabl
 
 ### Syncing Your Branch
 
-Always ensure your branch is up to date with the latest changes from `dev`:
+Always ensure your branch is up to date with the latest changes from `dev_pgs`:
 
 ```bash
-git checkout dev
-git pull origin dev
+git checkout dev_pgs
+git pull origin dev_pgs
 git checkout feature/your-feature-name
-git rebase dev
+git rebase dev_pgs
 ```
 
 ## Running Tests
