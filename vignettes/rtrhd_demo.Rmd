@@ -48,6 +48,8 @@ There are a suite of matching GOLD data processing functions that as yet have no
 
 It is available at GitHub [https://github.com/PietaSchofield/rtrhd](rtrhdgh)
 
+<div style='text-align: right'>**R code**</div>
+
 ```{r}
 if(!require("remotes")){
   install.packages("remotes")
@@ -72,7 +74,10 @@ and drug_issue files. So it doesn't totally test the functionality of the table 
 
 ### Paths
 
-<div style='text-align: right'>**R code**</div>
+It is important the patient data and the lookups are in separate directory trees and while the code
+recursively searches down the patient data tree for files so they can be in subdirectories by table name
+(or not) the code identifies files to import by wildcards and having the Patienttype lookup in the same
+subtree as the Patient file(s) will break the import of patients.
 
 ### Make the DuckDb
 
@@ -166,6 +171,12 @@ change to a release model. But as I am the only user at the moment it hasn't see
 
 I also haven't done clean install to check that I have all the dependencies in the Imports list so there
 maybe some I haven't caught yet.
+
+# By The Way
+
+This is the code that built the vignette and the README markdown for the GitHub repository
+
+<div style='text-align: right'>**R code**</div>
 
 ```{r buildit, eval=F}
 homeDir <- Sys.getenv("HOME")

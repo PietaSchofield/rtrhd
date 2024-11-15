@@ -635,6 +635,11 @@ data import. There are also other functions to be written yet.</p>
 yet have not been imported</p>
 <h2 id="install">Install</h2>
 <p>It is available at GitHub <a href="rtrhdgh"><span>https://github.com/PietaSchofield/rtrhd</span></a></p>
+<div style="text-align: right">
+
+<p><strong>R code</strong></p>
+</div>
+
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(<span class="st">&quot;remotes&quot;</span>)){</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>}</span>
@@ -655,11 +660,12 @@ demo. Unfortunately it only has single files for each table unlike the
 usual many many observation and drug_issue files. So it doesn’t totally
 test the functionality of the table load functions.</p>
 <h3 id="paths">Paths</h3>
-<div style="text-align: right">
-
-<p><strong>R code</strong></p>
-</div>
-
+<p>It is important the patient data and the lookups are in separate
+directory trees and while the code recursively searches down the patient
+data tree for files so they can be in subdirectories by table name (or
+not) the code identifies files to import by wildcards and having the
+Patienttype lookup in the same subtree as the Patient file(s) will break
+the import of patients.</p>
 <h3 id="make-the-duckdb">Make the DuckDb</h3>
 <p>I will use the duckdb package because it is reasonalbly fast for some
 analytics processing. It is slightly better tuned to this task than the
@@ -928,6 +934,14 @@ moment it hasn’t seemed necessary.</p>
 <p>I also haven’t done clean install to check that I have all the
 dependencies in the Imports list so there maybe some I haven’t caught
 yet.</p>
+<h1 id="by-the-way">By The Way</h1>
+<p>This is the code that built the vignette and the README markdown for
+the GitHub repository</p>
+<div style="text-align: right">
+
+<p><strong>R code</strong></p>
+</div>
+
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>homeDir <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;HOME&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>packagepath <span class="ot">&lt;-</span> <span class="fu">file.path</span>(homeDir,<span class="st">&quot;GitLab&quot;</span>,<span class="st">&quot;rtrhd&quot;</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>inputpath <span class="ot">&lt;-</span> <span class="fu">file.path</span>(packagepath,<span class="st">&quot;vignettes&quot;</span>)</span>

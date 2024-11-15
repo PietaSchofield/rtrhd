@@ -44,6 +44,12 @@ have not been imported
 It is available at GitHub
 [https://github.com/PietaSchofield/rtrhd](rtrhdgh)
 
+<div style="text-align: right">
+
+**R code**
+
+</div>
+
 ``` r
 if(!require("remotes")){
   install.packages("remotes")
@@ -70,11 +76,12 @@ test the functionality of the table load functions.
 
 ### Paths
 
-<div style="text-align: right">
-
-**R code**
-
-</div>
+It is important the patient data and the lookups are in separate
+directory trees and while the code recursively searches down the patient
+data tree for files so they can be in subdirectories by table name (or
+not) the code identifies files to import by wildcards and having the
+Patienttype lookup in the same subtree as the Patient file(s) will break
+the import of patients.
 
 ### Make the DuckDb
 
@@ -248,6 +255,17 @@ hasn’t seemed necessary.
 I also haven’t done clean install to check that I have all the
 dependencies in the Imports list so there maybe some I haven’t caught
 yet.
+
+# By The Way
+
+This is the code that built the vignette and the README markdown for the
+GitHub repository
+
+<div style="text-align: right">
+
+**R code**
+
+</div>
 
 ``` r
 homeDir <- Sys.getenv("HOME")
