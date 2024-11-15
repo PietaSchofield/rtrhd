@@ -4,7 +4,7 @@ author: "Pieta"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{R Tools for Routine Healthcare Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,15 +19,40 @@ knitr::opts_chunk$set(
 # Motivation
 
 I currently have several CPRD project using Aurum, I will also have a GOLD project soon. There are some
-common steps that need to be achieved with these projects. Mainly the ability to link HES data and to be
-able to clean values in the observations tables.
+common steps that need to be achieved with these projects. 
 
-The idea is that if I can import the data into an sqlite database it will permit the use of SQL to join
-and extract data for the process of linkage and cleaning. 
+The idea is that if I can import the data into an [duckdb](duckdb) database it will permit the use of 
+SQL to join and extract data for the process of linkage and cleaning. This also means the original text
+files need only be visited once. Some projects have billions of observation records so managing them in
+memory in R is not really feasible.
 
-It is possible that a second sqlite database will be created for the analysis data but the pre-processing
-can be done partly in SQL. These project are all going to be too large to do the type of queries I want
-in memory.
+## Caveat
+
+This is work in progress and is an amalgamation of functions I have written over the years and found
+useful but exist in many disparate packages. This is my attempt to put the really useful ones in one
+place. There are still some to import, namely the HES APC data ONS data and IMD data import. There are
+also other functions to be written yet. 
+
+There are a suite of matching GOLD data processing functions that as yet have not been imported
+
+## Install
+
+It is available at GitHub [https://github.com/PietaSchofield/rtrhd](rtrhdgh)
+
+```{r}
+if(!require("remotes")){
+  install.packages("remotes")
+}
+if(!require("tidyverse")){
+  install.packages("tidyverse")
+}
+if(!require("ggplot2")){
+  install.packages("ggplot2")
+}
+if(!require("rtrhd")){
+  remotes::install_github("PietaSchofield/rtrhd")
+}
+```
 
 ## Setup
 
@@ -35,11 +60,7 @@ I have access to the CPRD Aurum Synthetic Dataset which I will copy and place in
 
 ### Paths
 
-```{r}
-require(rtrhd)
-require(tidyverse)
-require(ggplot2)
-```
+<div style='text-align: right'>**R code**</div>
 
 ### Make the DuckDb
 
@@ -66,8 +87,14 @@ This function wraps a bunch of functions that load the individual tables
 <div style='text-align: right'>**R code**</div>
 
 ```{r}
-tables <- rtrhd::list_tables(synthdataDb)
-tables %>% kableExtra::kable()
+tables <- rtrhd::list_tables(synthdataDb) 
+names(tables) <- tables 
+records <- lapply(tables, function(tn){
+    flds <- paste0(rtrhd::list_fields(dbf=synthdataDb,tab=tn),collapse=", ")
+    recs <- rtrhd::get_table(dbf=synthdataDb,
+              sqlstr=paste0("SELECT COUNT(*) AS records FROM ",tn,";")) %>% pull(records)
+    return(tibble(table=tn,fields=flds,records=recs))}) %>% bind_rows()
+records %>% kableExtra::kable()
 ```
 
 It is now possible to run SQL against this database
@@ -75,8 +102,7 @@ It is now possible to run SQL against this database
 <div style='text-align: right'>**R code**</div>
 
 ```{r}
-## START SQL BLOCK
-rtrhd::list_fields(dbf=synthdataDb,tab="observations")
+## START SQL GEN BLOCK
 unnamed_sql <- str_c("SELECT DISTINCT
   p.patid,
   COUNT(o.medcodeid) AS observations
@@ -107,6 +133,21 @@ res %>% ggplot(aes(x=observations)) + geom_histogram(binwidth=10,fill="blue",col
 ## END SQL BLOCK
 ```
 
+```{r buildit, eval=F}
+homeDir <- Sys.getenv("HOME")
+packagepath <- file.path(homeDir,"GitLab","rtrhd")
+inputpath <- file.path(packagepath,"vignettes")
+inputFile <- file.path(inputpath,"rtrhd_demo.Rmd")
+noteDir <- file.path("/srv","http","uol","rtrhd")
 
+fdisp <- rmarkdown::render(inputFile,encoding=encoding,output_dir=noteDir,clean=T)
+
+
+rmarkdown::render(inputFile, output_format = "github_document", output_file = "README.md",
+                  output_dir = packagepath)
+browseURL(fdisp)
+```
+
+[rtrhdgh]: https://github.com/PietaSchofield/rtrhd
 
 
