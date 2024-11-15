@@ -1,7 +1,7 @@
 #' make a duckdb 
 #'
 #' @export
-dmplusd_make_db <- function(filePath,dbPath=dirname(filePath),dbName=NULL,wks=3,db=F,ow=F){
+dmplusd_make_db_r <- function(filePath,dbPath=dirname(filePath),dbName=NULL,wks=3,db=F,ow=F){
 
   if(db){
     db <- T
@@ -21,7 +21,7 @@ dmplusd_make_db <- function(filePath,dbPath=dirname(filePath),dbName=NULL,wks=3,
 
     dmdxmldir <- xmlpath
     dmplusd <- list(
-      vtm=c(filename=list.files(dmdxmldir,pattern="f_vtm",full=T), entity="VTM",tabname="vtm"),
+      vtm=c(filename=list.files(dmdxmldir,pattern="f_vtm",full=T),entity="VTM",tabname="vtm"),
       bnf=c(filename=list.files(dmdxmldir,pattern="f_bnf",full=T,recur=T),entity="VMP",tabname="bnf"),
       vmp=c(filename=list.files(dmdxmldir,pattern="f_vmp[0-9]",full=T),entity="VMP",tabname="vmp"),
       amp=c(filename=list.files(dmdxmldir,pattern="f_amp[0-9]",full=T),entity="AMP",tabname="amp"),

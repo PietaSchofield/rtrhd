@@ -2,7 +2,8 @@
 
 export(aurum_load_lookups)
 export(aurum_make_denom_db)
-export(dmplusd_make_db)
+export(dmplusd_make_db_py)
+export(dmplusd_make_db_r)
 export(drop_table)
 export(gen_sankey_data)
 export(get_table)
