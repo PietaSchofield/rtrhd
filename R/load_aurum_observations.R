@@ -39,7 +39,7 @@ load_aurum_observations <- function(pddir,dbf,ow=F,db=F,tab_name="observations",
       dat <- readr::read_tsv(fn,col_types=readr::cols(.default=readr::col_character())) %>%
         dplyr::select(dplyr::all_of(selvars)) %>%
         dplyr::mutate(obsdate = format(lubridate::dmy(obsdate)))
-      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
+      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F,append=T)
       nr <- dat %>% nrow()
       rm(dat)
       gc()

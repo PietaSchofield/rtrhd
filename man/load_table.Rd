@@ -10,6 +10,7 @@ load_table(
   dbf,
   ow = F,
   db = F,
+  append = F,
   tab_name = gsub("(^[0-9]*_|[.].*)", "", basename(filename)),
   selvars = NULL,
   delim = "\\t"
