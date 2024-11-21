@@ -33,7 +33,7 @@ load_aurum_referrals <- function(pddir,dbf,ow=F,db=F,tab_name="referrals",add=F)
     }
     nrec <- lapply(reffiles,function(fn){
       dat <- readr::read_tsv(fn,col_types=readr::cols(.default=readr::col_character()))
-      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
+      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F,append=T)
       nr <- dat %>% nrow()
       rm(dat)
       gc()

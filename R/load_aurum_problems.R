@@ -40,7 +40,7 @@ load_aurum_problems <- function( pddir,dbf,ow=F,db=F,tab_name="problems",add=F,
         dplyr::select(dplyr::all_of(selvars)) %>%
         dplyr::mutate(probeddate = format(lubridate::dmy(probenddate)),
                       lastrevdate = format(lubridate::dmy(lastrevdate)))
-      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
+      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F,append=T)
       nr <- dat %>% nrow()
       rm(dat)
       gc()

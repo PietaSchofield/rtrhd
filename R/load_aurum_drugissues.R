@@ -33,7 +33,7 @@ load_aurum_drugissues <- function(pddir,dbf,ow=F,db=F,tab_name="drug_issues",add
       dat <- readr::read_tsv(fn,col_types=readr::cols(.default=readr::col_character())) %>%
         dplyr::select(dplyr::all_of(selvars2)) %>%
         dplyr::mutate(issuedate = format(lubridate::dmy(issuedate))) 
-      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
+      rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F,append=T)
       nr <- dat %>% nrow()
       rm(dat)
       gc()

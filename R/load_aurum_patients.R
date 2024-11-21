@@ -33,7 +33,7 @@ load_aurum_patients <- function(pdir,dbf,ow=F,db=F,tab_name="patients",add=F,
                             cprd_ddate = format(lubridate::dmy(cprd_ddate)))
                      }) %>% bind_rows()
     nrec <- dat %>% nrow()
-    rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
+    rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F,append=T)
     rm(dat)
     gc()
     ext <- "new records"
