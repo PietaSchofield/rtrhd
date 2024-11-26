@@ -7,5 +7,8 @@
 make_aurum_database(dbName, dbPath, patient_path, lookup_path, db = F, ow = F)
 }
 \description{
-make a full database
+This is a wrapper for the individual table load functions that loop through each extract table type
+and imports the records into one table for each type. It is not meant for clever appending or updating
+individual tables it is a either create or overwrite it. If called with overwrite (ow) it will delete
+whole database and regenerate.
 }

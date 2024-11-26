@@ -48,7 +48,7 @@ load_table <- function(filename=NULL,dataset=NULL,dbf,ow=F,db=F,append=F,
       dbi <- duckdb::dbConnect(duckdb::duckdb(),dbf)
       if(!tab_name%in%duckdb::dbListTables(dbi) || ow || append){
         if(ow){
-          DBI::dbExecute(dbi,paste0("DROP TABLE IF EXISTS",tab_name))
+          DBI::dbExecute(dbi,paste0("DROP TABLE IF EXISTS ",tab_name))
         }
         dat <- dataset
         names(dataset) <- tolower(names(dataset))

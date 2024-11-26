@@ -8,7 +8,7 @@ dmplusd_make_db_py(
   filePath,
   dbPath = dirname(filePath),
   dbName = NULL,
-  wks = 3,
+  xml_config = system.file("xml", "dmd_structure.xml", package = "rtrhd"),
   db = F,
   ow = F
 )
