@@ -23,6 +23,7 @@ plot_sankey <- function(datalist,sankeyFile,silent=T,db=F){
 
   interval_labels <- jsonlite::toJSON(timeint)
   title_text <- gsub("_"," ",gsub("[.]*$","",basename(sankeyFile)))
+  idxline <- (length(timeint)-1)/2
 
   sankey <- sankey %>%
     htmlwidgets::onRender(sprintf("
@@ -43,7 +44,7 @@ plot_sankey <- function(datalist,sankeyFile,silent=T,db=F){
         var spacing = svgWidth / n;
         
         // X-position for diagnosis line (adjust based on layout)
-        var diagnosisX = (3.5 * spacing) + (spacing /2) ;  // diagnosis line pos
+        var diagnosisX = (%f * spacing) + (spacing /2) ;  // diagnosis line pos
         // Add a title to the top of the SVG, centered
 
         svg.append('text')
@@ -75,7 +76,7 @@ plot_sankey <- function(datalist,sankeyFile,silent=T,db=F){
             .text(label);
         });
       }
-    ", interval_labels, title_text))
+    ", interval_labels, idxline, title_text))
  
   if(db){
     sankey
