@@ -15,7 +15,7 @@ summarise_period(
   perstart = NULL,
   perend = NULL,
   perdiv = "months",
-  prior = T,
+  prior = 1,
   db = F
 )
 }

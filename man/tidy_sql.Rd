@@ -6,9 +6,10 @@
 \usage{
 tidy_sql(
   sql,
+  prefix = "tmp",
   sql_keywords = c("SELECT", "FROM", "WHERE", "AND", "OR", "GROUP", "ORDER", "HAVING",
-    "INNER", "LEFT", "RIGHT", "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE",
-    "DROP", "OUTER", "FULL")
+    "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "DROP", "WITH", "INNER",
+    "LEFT", "RIGHT", "OUTER", "FULL", "CROSS", "/\\\\*", "\\\\*/")
 )
 }
 \description{
