@@ -34,7 +34,7 @@ load_aurum_staff <- function(pddir,dbf,ow=F,db=F,tab_name="staff",add=F){
     }
     dat <- lapply(stafiles,function(fn){
              dat <- readr::read_tsv(fn,col_types=readr::cols(.default=readr::col_character())) 
-           }) %>% bind_rows() %>% unique() 
+           }) %>% dplyr::bind_rows() %>% unique() 
     rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
     nred <- dat %>% nrow()
     rm(dat)

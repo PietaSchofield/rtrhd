@@ -38,7 +38,7 @@ load_aurum_practices <- function(pddir,dbf,ow=F,db=F,tab_name="practices",add=F,
         dplyr::select(dplyr::all_of(selvars)) %>%
         dplyr::mutate(lcd = format(lubridate::dmy(lcd)),
                       uts = format(lubridate::dmy(uts)))
-      }) %>% bind_rows() %>% unique()
+      }) %>% dplyr::bind_rows() %>% unique()
     rtrhd::load_table(dbf=dbf,tab_name=tab_name,dataset=dat,ow=F)
     nrec <- dat %>% nrow()
     rm(dat)

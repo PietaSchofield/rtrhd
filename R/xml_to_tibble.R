@@ -13,7 +13,7 @@ xml_to_tibble <- function(fileName,root,wks=3,db=F){
   xml_data <- xml2::read_xml(fileName)
   root_nodes <- xml2::xml_find_all(xml_data,paste0(".//",root))
   future::plan(future::multicore,workers=wks) 
-  nodes_table <- furrr::future_map(root_nodes,parse_node,root) %>% bind_rows()
+  nodes_table <- furrr::future_map(root_nodes,parse_node,root) %>% dplyr::bind_rows()
   nodes_table
 }
 
