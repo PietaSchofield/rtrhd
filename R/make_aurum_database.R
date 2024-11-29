@@ -11,10 +11,9 @@ make_aurum_database <- function(dbName,dbPath,patient_path,lookup_path,db=F,ow=F
    if(ow && file.exists(dbFile))
      unlink(dbFile)
   }
-  aPath <- patient_data
-  cPath <- lookup_data
+  aPath <- patient_path
+  cPath <- lookup_path
   dbFile <- file.path(dbPath,dbName)
-  aPath
   if(file.exists(aPath)){
     rtrhd::load_aurum_patients(pdir=aPath,dbf=dbFile)
     rtrhd::load_aurum_observations(pddir=aPath,dbf=dbFile)
