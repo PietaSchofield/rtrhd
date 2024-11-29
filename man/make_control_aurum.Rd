@@ -9,9 +9,9 @@ make_control_aurum(
   exclude,
   include,
   reps = 1,
-  praclevel = "region",
+  praclevel = NULL,
   agebin = 0,
-  db = T,
+  db = F,
   silent = F
 )
 }
