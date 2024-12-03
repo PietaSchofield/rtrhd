@@ -323,3 +323,29 @@ gen_sankey_data <- function(dbf, condition='SLE',status='child', tabstub=paste0(
   datalist <- list(nodes=nodes_df,links=links_df,timeint=time_levels,trans=pattrans)
   return(datalist)
 }
+
+#' convert sankey data
+#'
+#' @export 
+convert_to_ggsankey <- function(nodes, links) {
+  # Ensure 'name' column exists in nodes
+  if (!"name" %in% colnames(nodes)) {
+    stop("The 'nodes' data frame must have a 'name' column.")
+  }
+
+  # Map source and target indices to node names
+  node_names <- nodes$name
+  links$source <- node_names[links$source + 1] # networkD3 uses zero-based indexing
+  links$target <- node_names[links$target + 1]
+
+  # Check for 'value' column in links
+  if (!"value" %in% colnames(links)) {
+    stop("The 'links' data frame must have a 'value' column.")
+  }
+
+  # Use ggsankey's make_long to create long-format data
+  sankey_data <- ggsankey::make_long(links, source = "source", target = "target", value = "value")
+
+  return(sankey_data)
+}
+
