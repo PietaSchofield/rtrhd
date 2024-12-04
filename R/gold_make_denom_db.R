@@ -1,12 +1,13 @@
 #' make a demographic linkage database for control construction
 #'
 #' @export
-gold_make_denom_db <- function(dbn,denomdir,linkdir,db=F){
+gold_make_denom_db <- function(dbn,denomdir,linkdir,linkfield=NULL,db=F){
   if(db){
     golddir <- file.path(Sys.getenv("HOME"),"Projects","refdata","gold",".data")
-    linkdir <- file.path(golddir,"January_2022_Source_GOLD")
-    denomdir <- file.path(golddir,"202409_CPRDGold")
-    dbn <- file.path(golddir,"202409_gold.duckdb")
+    linkdir <- file.path(golddir,"November_2024_Source_GOLD")
+    denomdir <- file.path(golddir,"denom_202412")
+    dbn <- file.path(golddir,"202412_gold.duckdb")
+    linkfield <- NULL
   }
 
   tabs <- rtrhd::list_tables(dbf=dbn)
@@ -37,8 +38,10 @@ gold_make_denom_db <- function(dbn,denomdir,linkdir,db=F){
 
   if(!"linkages"%in%tabs){
     linkage_file <- list.files(linkdir,pattern="eligibil",full=T,recur=T)
-    linkages <- linkage_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
-      mutate(linkdate=lubridate::dmy(linkdate))
+    linkages <- linkage_file %>% readr::read_tsv(col_type=cols(.default=col_character()))
+    if(!is.null(linkfield)){
+      linkages <- linkages %>% mutate(linkdate=lubridate::dmy(linkdate))
+    }
     cprdaurumtools::load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
     rm(linkages)
     gc()
