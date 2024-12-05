@@ -12,8 +12,8 @@
 #' @import magrittr
 #' @export
 load_aurum_observations <- function(pddir,dbf,ow=F,db=F,tab_name="observations",add=F,
-    selvars=c("patid","consid","parentobsid","probobsid","medcodeid","obsdate","value","numunitid",
-              "numrangelow","numrangehigh")){
+    selvars=c("patid","consid","pracid","obsid","obsdate","enterdate","staffid","parentobsid","obstypeid",
+              "medcodeid","obsdate","value","numunitid","numrangelow","numrangehigh","probobsid")){
   if(F){
     pddir <- aPath
     dbf <- dbFile

@@ -11,8 +11,9 @@ load_aurum_observations(
   db = F,
   tab_name = "observations",
   add = F,
-  selvars = c("patid", "consid", "parentobsid", "probobsid", "medcodeid", "obsdate",
-    "value", "numunitid", "numrangelow", "numrangehigh")
+  selvars = c("patid", "consid", "pracid", "obsid", "obsdate", "enterdate", "staffid",
+    "parentobsid", "obstypeid", "medcodeid", "obsdate", "value", "numunitid",
+    "numrangelow", "numrangehigh", "probobsid")
 )
 }
 \arguments{

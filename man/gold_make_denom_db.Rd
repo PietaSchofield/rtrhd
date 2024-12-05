@@ -4,7 +4,7 @@
 \alias{gold_make_denom_db}
 \title{make a demographic linkage database for control construction}
 \usage{
-gold_make_denom_db(dbn, denomdir, linkdir, db = F)
+gold_make_denom_db(dbn, denomdir, linkdir, linkfield = NULL, db = F)
 }
 \description{
 make a demographic linkage database for control construction
