@@ -11,7 +11,7 @@
 #' Pass a table of covariate codes and generate covariates table
 #'
 #' @export
-load_aurum_lookups <- function(pddir,dbf,ow=F,db=F,silent=T){
+load_aurum_lookups <- function(pddir,dbf,ow=F,db=F,silent=T,prefix="ref"){
   if(F){
     pddir <- cPath
     dbf <- dbFile
@@ -21,7 +21,7 @@ load_aurum_lookups <- function(pddir,dbf,ow=F,db=F,silent=T){
   }
   tabs <- rtrhd::list_tables(dbf=dbf)
   cprdfiles <- list.files(pddir,pattern=".*txt",full=T)
-  names(cprdfiles) <- paste0("aurum_",tolower(gsub("(^[0-9]*_|[.]txt)","",basename(cprdfiles))))
+  names(cprdfiles) <- paste0(prefix,"_",tolower(gsub("(^[0-9]*_EMIS|[.]txt)","",basename(cprdfiles))))
   lapply(names(cprdfiles),function(fn){
     if(!fn%in%tabs || ow){
       dat <- readr::read_tsv(cprdfiles[[fn]],

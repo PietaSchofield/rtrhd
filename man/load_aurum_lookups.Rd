@@ -4,7 +4,7 @@
 \alias{load_aurum_lookups}
 \title{load the aurum lookup tables}
 \usage{
-load_aurum_lookups(pddir, dbf, ow = F, db = F, silent = T)
+load_aurum_lookups(pddir, dbf, ow = F, db = F, silent = T, prefix = "ref")
 }
 \arguments{
 \item{bdir}{the name of the batch subdirectory}
