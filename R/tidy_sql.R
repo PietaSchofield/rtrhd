@@ -24,7 +24,7 @@ tidy_sql <- function(sql, prefix = "tmp",
   for (line in lines) {
     original_line <- line # Keep the original line to preserve line breaks
     line <- trimws(line)
-    
+ 
     if (grepl("^WITH\\b", line, ignore.case = TRUE)) {
       # Start of a WITH block
       in_with_block <- TRUE
@@ -61,7 +61,7 @@ tidy_sql <- function(sql, prefix = "tmp",
     
     # Check if the line starts with an SQL keyword
     if (grepl(keyword_pattern, line, ignore.case = TRUE)) {
-      tidied_lines <- c(tidied_lines, paste0(strrep(" ", 2), line))
+      tidied_lines <- c(tidied_lines, paste0(strrep(" ", current_indent), line))
       current_indent <- 2 # Reset indentation for the new keyword block
     } else if (grepl(tmptab_pattern, line, ignore.case = TRUE)) {
       # Align `tmp_` table names
