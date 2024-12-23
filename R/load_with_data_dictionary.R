@@ -77,7 +77,7 @@ load_file_with_data_dictionary <- function(fname, ddict,ddir,dbf,proto,dset,repp
     col_types <- rtrhd::construct_col_types(data_dict=ddict)
 
     all_files <- list.files(path = ddir, pattern=paste0(".*",fname), full.names = TRUE, recursive = TRUE)
-    pattern <- rtrhd::construct_pattern(stub=fname,protocol=protocol)
+    pattern <- rtrhd::construct_pattern(stub=fname,protocol=proto)
     fpath <- all_files[grepl(pattern,basename(all_files),perl=T)]
     res <- lapply(fpath,function(fn){
       # Read the file with read_tsv
@@ -91,7 +91,9 @@ load_file_with_data_dictionary <- function(fname, ddict,ddir,dbf,proto,dset,repp
         DBI::dbWriteTable(dbc,tname,dat,append=T,overwrite=F)
         duckdb::dbDisconnect(dbc,shutdown=T)
       }
+      nrow(dat)
     })
+    logger::log_info("{tname}: {sum(unlist(res))} records loaded")
   }
 }
 
@@ -100,7 +102,7 @@ load_file_with_data_dictionary <- function(fname, ddict,ddir,dbf,proto,dset,repp
 #' @export
 construct_pattern <- function(stub, protocol) {
   if(is.null(protocol)){
-    paste0(".*",stub,"_",".*.txt$")
+    paste0(".*_",stub,"_.*.txt$")
   }else{
     if (grepl("_pathway$", stub)) {
       # Stub explicitly includes "_pathway"

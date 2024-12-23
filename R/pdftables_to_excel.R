@@ -9,7 +9,7 @@ pdftables_to_excel <- function(fileName,outFile,silent=F){
     reticulate::py_install("xlsxwriter")
   }
 
-  reticulate::source_python(system.file("python","extract_tables_to_excel.py",package="rtrhd"))
+  reticulate::source_python(system.file("python","extract_tabs.py",package="rtrhd"))
 
   tables <- extract_tables_to_excel(fileName,outFile)
   if(silent){
