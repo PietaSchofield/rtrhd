@@ -8,8 +8,9 @@ tidy_sql(
   sql,
   prefix = "tmp",
   sql_keywords = c("SELECT", "FROM", "WHERE", "AND", "OR", "GROUP", "ORDER", "HAVING",
-    "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "DROP", "WITH", "INNER",
-    "LEFT", "RIGHT", "OUTER", "FULL", "CROSS", "/\\\\*", "\\\\*/")
+    "COUNT", "SUM", "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "DROP",
+    "BETWEEN", "FIRST", "MIN", "MAX", "LEAST", "WITH", "INNER", "LEFT", "RIGHT", "OUTER",
+    "FULL", "CROSS", "/\\\\*", "\\\\*/")
 )
 }
 \description{

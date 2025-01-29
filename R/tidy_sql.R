@@ -4,9 +4,9 @@
 tidy_sql <- function(sql, prefix = "tmp",
   # Define common SQL keywords (add more as needed)
   sql_keywords=c(
-    "SELECT", "FROM", "WHERE", "AND", "OR", "GROUP", "ORDER", "HAVING",
-    "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "DROP",
-    "WITH","INNER","LEFT","RIGHT","OUTER","FULL","CROSS","/\\*","\\*/"
+    "SELECT", "FROM", "WHERE", "AND", "OR", "GROUP", "ORDER", "HAVING","COUNT","SUM",
+    "INSERT", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "DROP","BETWEEN","FIRST",
+    "MIN","MAX","LEAST","WITH","INNER","LEFT","RIGHT","OUTER","FULL","CROSS","/\\*","\\*/"
   )){
   # Create a regex pattern to detect lines starting with SQL keywords
   keyword_pattern <- paste0("^\\s*(", paste(sql_keywords, collapse = "|"), ")\\b")
