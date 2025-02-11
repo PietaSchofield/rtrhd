@@ -23,7 +23,10 @@ Imports:
   purrr,
   furrr,
   future,
-  fs
+  fs,
+  ggpubr,
+  logr,
+  cowplot
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
