@@ -23,7 +23,7 @@ make_aurum_denomdb <- function(dbn,denomdir,linkdir,db=F){
              regstartdate=lubridate::dmy(regstartdate),
              regenddate=lubridate::dmy(regenddate),
              lcd=lubridate::dmy(lcd))
-    cprdaurumtools::load_table(dbf=dbn,dataset=acceptable,tab_name="acceptable_patients",ow=T)
+    rtrhd::load_table(dbf=dbn,dataset=acceptable,tab_name="acceptable_patients",ow=T)
     rm(acceptable)
     gc()
   }
@@ -32,7 +32,7 @@ make_aurum_denomdb <- function(dbn,denomdir,linkdir,db=F){
     practice_file <- list.files(denomdir,pattern="Practice",full=T,recur=T)
     practices <- practice_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
       dplyr::mutate(lcd=lubridate::dmy(lcd))
-    cprdaurumtools::load_table(dbf=dbn,dataset=practices,tab_name="practices")
+    rtrhd::load_table(dbf=dbn,dataset=practices,tab_name="practices")
     rm(practices)
     gc()
   }
@@ -40,8 +40,9 @@ make_aurum_denomdb <- function(dbn,denomdir,linkdir,db=F){
   if(!"linkages"%in%tabs){
     linkage_file <- list.files(linkdir,pattern="eligibil",full=T,recur=T)
     linkages <- linkage_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
-      dplyr::mutate(linkdate=lubridate::dmy(linkdate))
-    cprdaurumtools::load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
+      dplyr::mutate(linkyear=as.integer(linkyear))
+##      dplyr::mutate(linkdate=lubridate::dmy(linkdate)) Change for november 2024 not fix
+    rtrhd::load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
     rm(linkages)
     gc()
   }
