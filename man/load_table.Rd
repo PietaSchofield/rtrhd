@@ -13,7 +13,8 @@ load_table(
   append = F,
   tab_name = gsub("(^[0-9]*_|[.].*)", "", basename(filename)),
   selvars = NULL,
-  delim = "\\t"
+  delim = "\\t",
+  quote = ""
 )
 }
 \arguments{

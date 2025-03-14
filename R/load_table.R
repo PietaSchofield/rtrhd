@@ -13,7 +13,7 @@
 #' @export
 load_table <- function(filename=NULL,dataset=NULL,dbf,ow=F,db=F,append=F,
                        tab_name=gsub("(^[0-9]*_|[.].*)","",basename(filename)), 
-                       selvars=NULL,delim="\t"){
+                       selvars=NULL,delim="\t",quote=""){
   nrec <- 0
   if(!is.null(filename)){
     if(file.exists(filename)){
@@ -29,7 +29,7 @@ load_table <- function(filename=NULL,dataset=NULL,dbf,ow=F,db=F,append=F,
           DBI::dbExecute(dbi,paste0("DROP TABLE IF EXISTS ",tab_name))
         }
         dat <- readr::read_delim(filename,col_types=readr::cols(.default=readr::col_character()),
-                                 delim=delim) 
+                                 delim=delim,quote="") 
         if(!is.null(selvars)) dat <- dat %>% dplyr::select(dplyr::all_of(selvars)) 
         if(!db) duckdb::dbWriteTable(dbi,tab_name,dat,overwrite=ow,append=append)
         nrec <- dat %>% nrow()

@@ -6,15 +6,13 @@
 #'
 #' @export
 sct_make_db <- function(dbPath,txtPath,dbName=NULL,db=F,ow=T,
-                        preterm=NULL,posterm=NULL,
-                        prerefs=NULL,posrefs=NULL,
-  incterm=c("concept","description","relationship","textdefinition"),
-  increfs=c("language","association","extendedmap","simplemap","extendedmap_1","simple")){
+                        preterm="sct2_",posterm="_MONOSnap.*",
+                        prerefs=".*efset_",posrefs="MONOSnap.*", incterm=NULL, increfs=NULL){
   if(db){
      dbPath <- file.path(Sys.getenv("HOME"),"Projects","refdata","snomed")
-     txtPath <- file.path(Sys.getenv("HOME"),"Projects","refdata","snomed","20240828_mono")
+     txtPath <- file.path(Sys.getenv("HOME"),"Projects","refdata","snomed","202502_mono")
      db <- F
-     ow <- F
+     ow <- T
      posterm <- "_MONOSnap.*"
      preterm <- "sct2_"
      posrefs <- "MONOSnap.*"
@@ -41,20 +39,20 @@ sct_make_db <- function(dbPath,txtPath,dbName=NULL,db=F,ow=T,
     make.names(unique=T)
   names(files) <- paste0("terminology_",gsub("\\.","_",names(files))) 
   if(is.null(incterm)) incterm <- names(files)
-  res <- lapply(incterm,rtrhd::load_sct_file,dbf=dbFile,filelist=files)
+  res <- lapply(incterm,rtrhd::load_sct_file,dbf=dbFile,filelist=files,ow=ow)
   # refset files
   files <- list.files(txtPath,pattern="der.*txt",recur=T,full=T)
   names(files) <- gsub(paste0("(",prerefs,"|",posrefs,")"),"",basename(files)) %>% tolower() %>%
     make.names(unique=T)
   names(files) <- paste0("refset_",gsub("\\.","_",names(files)))
   if(is.null(increfs)) increfs <- names(files)
-  res <- lapply(increfs,rtrhd::load_sct_file,dbf=dbFile,filelist=files)
+  res <- lapply(increfs,rtrhd::load_sct_file,dbf=dbFile,filelist=files,ow=ow)
 
   return(dbFile) 
 }
 
 #' @export
-load_sct_file <- function(tab,dbf,filelist){
-  rtrhd::load_table(filename=filelist[[tab]],dbf=dbf,tab_name=tab) 
+load_sct_file <- function(tab,dbf,filelist,ow=T){
+  rtrhd::load_table(filename=filelist[[tab]],dbf=dbf,tab_name=tab,ow=ow) 
 }
 

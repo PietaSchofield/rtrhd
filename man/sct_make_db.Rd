@@ -10,13 +10,12 @@ sct_make_db(
   dbName = NULL,
   db = F,
   ow = T,
-  preterm = NULL,
-  posterm = NULL,
-  prerefs = NULL,
-  posrefs = NULL,
-  incterm = c("concept", "description", "relationship", "textdefinition"),
-  increfs = c("language", "association", "extendedmap", "simplemap", "extendedmap_1",
-    "simple")
+  preterm = "sct2_",
+  posterm = "_MONOSnap.*",
+  prerefs = ".*efset_",
+  posrefs = "MONOSnap.*",
+  incterm = NULL,
+  increfs = NULL
 )
 }
 \description{
