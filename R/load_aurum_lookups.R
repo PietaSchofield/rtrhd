@@ -28,6 +28,9 @@ load_aurum_lookups <- function(pddir,dbf,ow=F,db=F,silent=T,prefix="ref"){
                              col_types=readr::cols(.default=readr::col_character()),
                              locale=locale(encoding="ISO-8859-1")) %>%
         as_tibble()
+      dat <- dat %>% 
+        mutate(across(where(is.character), ~ iconv(iconv(.,to="latin1", from= "UTF-8"),
+                                                   to="latin1",from="UTF-8")))
       names(dat) <- tolower(names(dat))
       rtrhd::load_table(dbf=dbf,dataset=dat,tab_name=fn,ow=ow)
       nr <- dat %>% nrow()
