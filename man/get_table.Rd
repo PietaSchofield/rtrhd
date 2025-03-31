@@ -2,10 +2,43 @@
 % Please edit documentation in R/get_table.R
 \name{get_table}
 \alias{get_table}
-\title{get table}
+\title{Run a SQL query on a DuckDB database}
 \usage{
-get_table(dbf, sqlstr = NULL, tabname = NULL, fields = "*", whereclause = NULL)
+get_table(
+  dbf,
+  sqlstr = NULL,
+  tabname = NULL,
+  fields = "*",
+  whereclause = NULL,
+  explain = FALSE
+)
+}
+\arguments{
+\item{dbf}{Character. Path to the DuckDB database file.}
+
+\item{sqlstr}{Character. A full SQL query string. If provided, this takes priority
+over \code{tabname}, \code{fields}, and \code{whereclause}.}
+
+\item{tabname}{Character. Table name to construct a query from (if \code{sqlstr} is NULL).}
+
+\item{fields}{Character vector. Fields to select when constructing a query (default is '*').}
+
+\item{whereclause}{Character. Optional WHERE clause to apply when constructing a query.}
+
+\item{explain}{Logical. If TRUE, wraps the query with \verb{EXPLAIN ANALYZE} and returns
+the query plan instead of the data.}
+}
+\value{
+A tibble containing the result of the query, or a query plan if \code{explain = TRUE}.
 }
 \description{
-get the patient data
+This function connects to a DuckDB database, runs a SQL query (either provided
+directly or constructed from a table name and field list), and returns the result
+as a tibble. Optionally, the query can be run with \verb{EXPLAIN ANALYZE} to inspect
+query performance.
+}
+\examples{
+get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients LIMIT 10")
+get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients WHERE age > 80", explain = TRUE)
+
 }
