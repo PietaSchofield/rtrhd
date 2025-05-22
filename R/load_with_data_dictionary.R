@@ -26,10 +26,15 @@ construct_col_types <- function(data_dict) {
   # Mapping data dictionary types to readr col_types
   type_mapping <- list(
     "CHAR" = col_character(),
+    "VARCHAR" = col_character(),
     "NUMERIC" = col_double(),
+    "DECIMAL" = col_double(),
     "INTEGER" = col_integer(),
+    "BIGINT" = col_character(),
     "LOGICAL" = col_logical(),
-    "DATE" =  function(format) col_date(format=format)
+    "BOOLEAN" = col_logical(),
+    "DATE" =  function(format) col_date(format=format),
+    "DATETIME" =  function(format) col_date(format=format)
   )
 
   # Create col_types for read_tsv
@@ -40,7 +45,7 @@ construct_col_types <- function(data_dict) {
     col_format <- data_dict$format[i]
 
     # Handle DATE format dynamically
-    if (col_type == "DATE" && !is.na(col_format)) {
+    if ((col_type == "DATE" || col_type == "DATETIME") && !is.na(col_format)) {
       col_types[[col_name]] <- type_mapping[["DATE"]](col_format)
     } else if (!is.null(type_mapping[[col_type]])) {
       col_types[[col_name]] <- type_mapping[[col_type]]

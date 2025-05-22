@@ -4,7 +4,7 @@
 \alias{list_db}
 \title{list database}
 \usage{
-list_db(dbf)
+list_db(dbf, incv = F)
 }
 \description{
 list database
