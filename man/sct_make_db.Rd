@@ -2,14 +2,14 @@
 % Please edit documentation in R/sct_make_db.R
 \name{sct_make_db}
 \alias{sct_make_db}
-\title{make a snomed database}
+\title{Import SNOMED CT release files into a DuckDB database}
 \usage{
 sct_make_db(
   dbPath,
   txtPath,
   dbName = NULL,
-  db = F,
-  ow = T,
+  db = FALSE,
+  ow = FALSE,
   preterm = "sct2_",
   posterm = "_MONOSnap.*",
   prerefs = ".*efset_",
@@ -18,6 +18,40 @@ sct_make_db(
   increfs = NULL
 )
 }
+\arguments{
+\item{dbPath}{Path to folder where the DuckDB file is or will be created.}
+
+\item{txtPath}{Path to SNOMED CT release folder.}
+
+\item{dbName}{Optional filename for DuckDB (default: based on \code{txtPath}).}
+
+\item{db}{Internal testing flag to override paths. Ignored in normal use.}
+
+\item{ow}{Overwrite existing tables? Default is FALSE (safer).}
+
+\item{preterm}{Pattern to remove from terminology file names.}
+
+\item{posterm}{Pattern to remove from terminology file names.}
+
+\item{prerefs}{Pattern to remove from refset file names.}
+
+\item{posrefs}{Pattern to remove from refset file names.}
+
+\item{incterm}{Optional character vector of terminology tables to include (e.g. "concept").}
+
+\item{increfs}{Optional character vector of refset tables to include (e.g. "language").}
+}
+\value{
+Path to the DuckDB file.
+}
 \description{
-Trying to use some of my existing convenience functions
+Scans a folder of SNOMED CT \code{.txt} files and loads terminology and refset tables into DuckDB.
+}
+\examples{
+db_file <- sct_make_db(
+  dbPath = "myproject/db",
+  txtPath = "myproject/data/SNOMED202502",
+  incterm = c("concept", "description"),
+  increfs = c("language")
+)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_with_data_dictionary.R
 \name{load_file_with_data_dictionary}
 \alias{load_file_with_data_dictionary}
-\title{Find all files that match the sheet name pattern and read and load them to the database}
+\title{Load a File Using Data Dictionary Information}
 \usage{
 load_file_with_data_dictionary(
   fname,
@@ -11,11 +11,34 @@ load_file_with_data_dictionary(
   dbf,
   proto,
   dset,
-  reppref = F,
-  ow = F,
-  db = F
+  reppref = FALSE,
+  ow = FALSE,
+  db = FALSE
 )
 }
+\arguments{
+\item{fname}{Filename base (typically from the sheet name).}
+
+\item{ddict}{Data dictionary for the file.}
+
+\item{ddir}{Directory to search for matching files.}
+
+\item{dbf}{Path to the DuckDB database file.}
+
+\item{proto}{Optional protocol to match in filenames.}
+
+\item{dset}{Dataset name prefix for constructing the table name.}
+
+\item{reppref}{Logical; use suffix from filename after first underscore.}
+
+\item{ow}{Logical; overwrite the existing table if it exists.}
+
+\item{db}{Logical; if TRUE, prints load issues to console.}
+}
+\value{
+Number of rows loaded per file.
+}
 \description{
-Find all files that match the sheet name pattern and read and load them to the database
+Searches for files that match a pattern derived from the sheet name, loads them with correct
+column types, and inserts the data into a DuckDB database table.
 }

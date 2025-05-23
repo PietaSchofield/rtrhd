@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_with_data_dictionary.R
 \name{load_with_data_dictionary}
 \alias{load_with_data_dictionary}
-\title{Load All Files In Dictionary}
+\title{Load All Files Specified in a Data Dictionary}
 \usage{
 load_with_data_dictionary(
   ddFile,
@@ -10,11 +10,32 @@ load_with_data_dictionary(
   datadir,
   protocol = NULL,
   dset,
-  reppref = F,
-  ow = F,
-  db = F
+  reppref = FALSE,
+  ow = FALSE,
+  db = FALSE
 )
 }
+\arguments{
+\item{ddFile}{Path to the Excel data dictionary file. Each sheet represents a table.}
+
+\item{dbf}{Path to the DuckDB database file.}
+
+\item{datadir}{Directory containing the data files to be loaded.}
+
+\item{protocol}{Optional protocol string to match in filenames.}
+
+\item{dset}{Dataset name prefix used in constructing table names.}
+
+\item{reppref}{Logical; if TRUE, uses the portion after the first underscore in the filename as table suffix.}
+
+\item{ow}{Logical; if TRUE, overwrite existing tables.}
+
+\item{db}{Logical; if TRUE, prints problems encountered during data load.}
+}
+\value{
+Invisibly returns a list of load results per sheet.
+}
 \description{
-Load All Files In Dictionary
+Iterates over each sheet in the Excel data dictionary and loads associated data files into
+a database table using the column specifications in the sheet.
 }

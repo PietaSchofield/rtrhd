@@ -2,10 +2,18 @@
 % Please edit documentation in R/load_with_data_dictionary.R
 \name{construct_pattern}
 \alias{construct_pattern}
-\title{construct pattern}
+\title{Construct a Regex Pattern for Matching Data Files}
 \usage{
 construct_pattern(stub, protocol)
 }
+\arguments{
+\item{stub}{Base name used to identify files.}
+
+\item{protocol}{Optional protocol string to match.}
+}
+\value{
+A character string containing a regular expression.
+}
 \description{
-construct pattern
+Builds a regular expression to match filenames based on a stub and optional protocol.
 }

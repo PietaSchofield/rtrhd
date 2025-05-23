@@ -2,10 +2,24 @@
 % Please edit documentation in R/load_with_data_dictionary.R
 \name{construct_col_types}
 \alias{construct_col_types}
-\title{Construct a col_type parameter from the data-dictionary to pass to the readr::read_tsv function}
+\title{Construct \code{col_types} for \code{readr::read_tsv} from a Data Dictionary}
 \usage{
-construct_col_types(data_dict)
+construct_col_types(
+  data_dict,
+  ddcols = c("name", "description", "type", "format"),
+  setcols = T
+)
+}
+\arguments{
+\item{data_dict}{A data.frame with columns: name, description, type, and format.}
+
+\item{ddcols}{a vector of column names in the data dictionary meta data}
+
+\item{setcols}{A boolean TRUE to rename the column names or FALSE select existing columns}
+}
+\value{
+A \code{readr::cols()} specification object.
 }
 \description{
-Construct a col_type parameter from the data-dictionary to pass to the readr::read_tsv function
+Translates data dictionary types to \code{readr} \code{col_types} format for parsing text files.
 }
