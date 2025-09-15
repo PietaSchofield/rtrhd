@@ -13,7 +13,10 @@ load_file_with_data_dictionary(
   dset,
   reppref = FALSE,
   ow = FALSE,
-  db = FALSE
+  db = FALSE,
+  log_to_duckdb = TRUE,
+  log_table = "load_problems",
+  log_csv = NULL
 )
 }
 \arguments{

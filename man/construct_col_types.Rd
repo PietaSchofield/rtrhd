@@ -7,7 +7,7 @@
 construct_col_types(
   data_dict,
   ddcols = c("name", "description", "type", "format"),
-  setcols = T
+  setcols = TRUE
 )
 }
 \arguments{

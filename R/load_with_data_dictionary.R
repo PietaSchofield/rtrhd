@@ -43,50 +43,57 @@ load_with_data_dictionary <- function(ddFile, dbf, datadir, protocol = NULL, dse
 #'
 #' @return A `readr::cols()` specification object.
 #' @export
-construct_col_types <- function(data_dict,ddcols=c("name","description","type","format"),setcols=T) {
-  if(F){
-    data_dict <- dd[[3]]
-    ddcols=c("name","description","type","format")
-    setcols=F
+construct_col_types <- function(data_dict,
+                                ddcols = c("name","description","type","format"),
+                                setcols = TRUE) {
+  if (setcols) {
+    names(data_dict) <- c("name","description","type","format")
+  } else {
+    data_dict <- dplyr::select(data_dict, dplyr::any_of(ddcols))
   }
-  
-  if(setcols){
-    names(data_dict) <- c("name", "description", "type", "format")
-  }else{
-    data_dict <- data_dict %>% dplyr::select(dplyr::any_of(ddcols))
+
+  norm <- function(x) {
+    x <- trimws(tolower(as.character(x)))
+    x <- gsub("[^a-z0-9]+", "_", x)
+    gsub("_+", "_", x)
   }
-  
-  # Normalize type names to uppercase for case-insensitive matching
+
+  data_dict$name <- norm(data_dict$name)
   data_dict$type <- toupper(data_dict$type)
 
+  # map dict → readr types (keep huge IDs as text)
   type_mapping <- list(
-    "CHAR" = col_character(),
-    "VARCHAR" = col_character(),
-    "NUMERIC" = col_double(),
-    "DECIMAL" = col_double(),
-    "INTEGER" = col_integer(),
-    "BIGINT" = col_character(),
-    "LOGICAL" = col_logical(),
-    "BOOLEAN" = col_logical(),
-    "DATE" = function(format) col_date(format = format),
-    "DATETIME" = function(format) col_datetime(format = format)
+    "CHAR"     = readr::col_character(),
+    "TEXT"     = readr::col_character(),
+    "VARCHAR"  = readr::col_character(),
+    "NUMERIC"  = readr::col_double(),
+    "DECIMAL"  = readr::col_double(),
+    "INTEGER"  = readr::col_integer(),
+    "BIGINT"   = readr::col_character(),  # <- avoid overflow; treat as text
+    "LOGICAL"  = readr::col_logical(),
+    "BOOLEAN"  = readr::col_logical(),
+    "DATE"     = function(fmt) readr::col_date(format = fmt),
+    "DATETIME" = function(fmt) readr::col_datetime(format = fmt)
   )
 
   col_types <- list()
   for (i in seq_len(nrow(data_dict))) {
-    col_name <- data_dict$name[i]
-    col_type <- data_dict$type[i]
-    col_format <- data_dict$format[i]
+    nm  <- data_dict$name[i]
+    typ <- data_dict$type[i]
+    fmt <- if (!is.null(data_dict$format)) data_dict$format[i] else NA
 
-    if ((col_type %in% c("DATE", "DATETIME")) && !is.na(col_format)) {
-      col_types[[col_name]] <- type_mapping[[col_type]](col_format)
-    } else if (!is.null(type_mapping[[col_type]])) {
-      col_types[[col_name]] <- type_mapping[[col_type]]
+    if (typ %in% c("DATE","DATETIME") && !is.na(fmt) && nzchar(fmt)) {
+      col_types[[nm]] <- type_mapping[[typ]](fmt)
+    } else if (!is.null(type_mapping[[typ]])) {
+      col_types[[nm]] <- type_mapping[[typ]]
+    } else {
+      # default: keep as character so nothing is lost
+      col_types[[nm]] <- readr::col_character()
     }
   }
-  cols(.default = col_skip(), !!!col_types)
-}
 
+  readr::cols(.default = readr::col_skip(), !!!col_types)
+}
 #' Load a File Using Data Dictionary Information
 #'
 #' Searches for files that match a pattern derived from the sheet name, loads them with correct
@@ -104,49 +111,174 @@ construct_col_types <- function(data_dict,ddcols=c("name","description","type","
 #'
 #' @return Number of rows loaded per file.
 #' @export
-load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset, 
-                                           reppref = FALSE, ow = FALSE, db = FALSE) {
-  fname <- gsub("[.].*", "", fname)
-  tname <- if (reppref) {
-    tolower(paste0(dset, "_", gsub("^[^_]*_", "", fname)))
-  } else {
-    tolower(paste0(dset, "_", fname))
+load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
+                                           reppref = FALSE, ow = FALSE,
+                                           db = FALSE,
+                                           log_to_duckdb = TRUE,
+                                           log_table = "load_problems",
+                                           log_csv = NULL) {
+  norm <- function(x) {
+    x <- trimws(tolower(as.character(x)))
+    x <- gsub("[^a-z0-9]+", "_", x); gsub("_+", "_", x)
   }
 
-  dbc <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = FALSE)
-  tabs <- DBI::dbListTables(dbc)
-  duckdb::dbDisconnect(dbc, shutdown = TRUE)
+  # table name
+  fname0 <- gsub("[.].*", "", fname)
+  tname <- if (reppref) tolower(paste0(dset, "_", gsub("^[^_]*_", "", fname0)))
+           else         tolower(paste0(dset, "_", fname0))
+
+  # get existing tables
+  dbc_tmp <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = FALSE)
+  on.exit(duckdb::dbDisconnect(dbc_tmp, shutdown = TRUE), add = TRUE)
+  tabs <- DBI::dbListTables(dbc_tmp)
 
   if (!tname %in% tabs || ow) {
     if (ow) {
       rtrhd::sql_execute(dbf = dbf, sql_make = paste0("DROP TABLE IF EXISTS ", tname, ";"))
     }
 
-    col_types <- rtrhd::construct_col_types(data_dict = ddict)
-    all_files <- list.files(path = ddir, pattern = paste0(".*", fname), full.names = TRUE, recursive = TRUE)
-    pattern <- rtrhd::construct_pattern(stub = fname, protocol = proto)
-    fpath <- all_files[grepl(pattern, basename(all_files), perl = TRUE)]
+    # build col_types (case-insensitive on names)
+    col_types <- rtrhd::construct_col_types(ddict)
 
-    if (length(fpath) == 0) {
-      logger::log_warn("No files matched pattern {pattern} for {fname}")
+    # discover files
+    all_files <- list.files(path = ddir, pattern = paste0(".*", fname0), full.names = TRUE, recursive = TRUE)
+    pattern <- rtrhd::construct_pattern(stub = fname0, protocol = proto)
+    fpath <- all_files[grepl(pattern, basename(all_files), perl = TRUE)]
+    if (!length(fpath)) {
+      logger::log_warn("No files matched pattern {pattern} for {fname0}")
       return(NULL)
     }
 
-    res <- lapply(fpath, function(fn) {
-      dat <- readr::read_tsv(fn, col_types = col_types)
-      if (db) {
-        cat(paste0(tname, ": ", paste0(readr::problems(dat), collapse = " , "), "\n"))
+    # prepare problem log (DuckDB or CSV)
+    append_problem_rows <- function(df) {
+      if (is.null(df) || !nrow(df)) return(invisible())
+      if (!is.null(log_csv)) {
+        if (!file.exists(log_csv)) utils::write.table(df, log_csv, sep = ",", row.names = FALSE,
+                                                      col.names = TRUE)
+        else utils::write.table(df, log_csv, sep = ",", row.names = FALSE, col.names = FALSE, 
+                                append = TRUE)
       }
-      names(dat) <- tolower(gsub("[.]", "_", make.names(names(dat), unique = TRUE)))
+      if (isTRUE(log_to_duckdb)) {
+        con_log <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
+        on.exit(duckdb::dbDisconnect(con_log, shutdown = TRUE), add = TRUE)
+        if (!DBI::dbExistsTable(con_log, log_table)) {
+          DBI::dbExecute(con_log, sprintf(
+            "CREATE TABLE %s (when_ts TIMESTAMP, table_name VARCHAR, file VARCHAR,
+                              row INTEGER, col INTEGER, col_name VARCHAR,
+                              expected VARCHAR, actual VARCHAR, problem VARCHAR);",
+            DBI::dbQuoteIdentifier(con_log, log_table)
+          ))
+        }
+        DBI::dbWriteTable(con_log, log_table, df, append = TRUE)
+      }
+      invisible()
+    }
 
-      if (nrow(dat) > 0) {
-        dbc <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
-        DBI::dbWriteTable(dbc, tname, dat, append = TRUE, overwrite = FALSE)
-        duckdb::dbDisconnect(dbc, shutdown = TRUE)
+    # load files one by one with detailed warning/error capture
+    totals <- integer(0)
+    for (fn in fpath) {
+      warn_msgs <- character(0)
+      prob_rows <- NULL
+
+      # capture warnings without losing detail
+      dat <- withCallingHandlers(
+        tryCatch(
+          readr::read_tsv(
+            file = fn,
+            col_types = col_types,
+            progress = FALSE,
+            show_col_types = FALSE,
+            locale = readr::locale(encoding = "UTF-8", decimal_mark = ".")
+          ),
+          error = function(e) {
+            # record as a "problem" row with problem text
+            prob_rows <<- rbind(
+              prob_rows,
+              data.frame(
+                when_ts = Sys.time(),
+                table_name = tname,
+                file = fn,
+                row = NA_integer_,
+                col = NA_integer_,
+                col_name = NA_character_,
+                expected = NA_character_,
+                actual = NA_character_,
+                problem = paste("ERROR:", conditionMessage(e)),
+                stringsAsFactors = FALSE
+              )
+            )
+            return(NULL)
+          }
+        ),
+        warning = function(w) {
+          warn_msgs <<- c(warn_msgs, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        }
+      )
+
+      # collect readr parse problems (row/col level)
+      if (!is.null(dat)) {
+        p <- readr::problems(dat)
+
+        if (nrow(p)) {
+          # normalise across readr versions
+          if (!"file" %in% names(p)) p$file <- fn
+          # derive col_name and problem for our log schema
+          p$col_name <- if ("col" %in% names(p)) as.character(p$col) else NA_character_
+          p$problem  <- paste0("expected=", p$expected, " | actual=", p$actual)
+
+          p$when_ts    <- Sys.time()
+          p$table_name <- tname
+
+          p <- p[, c("when_ts","table_name","file","row","col","col_name","expected","actual","problem")]
+
+          prob_rows <- rbind(prob_rows, p)
+        }
       }
-      nrow(dat)
-    })
-    logger::log_info("{tname}: {sum(unlist(res))} records loaded")
+
+      # append any high-level warnings as problem rows
+      if (length(warn_msgs)) {
+        prob_rows <- rbind(
+          prob_rows,
+          data.frame(
+            when_ts = Sys.time(),
+            table_name = tname,
+            file = fn,
+            row = NA_integer_,
+            col = NA_integer_,
+            col_name = NA_character_,
+            expected = NA_character_,
+            actual = NA_character_,
+            problem = paste(warn_msgs, collapse = " | "),
+            stringsAsFactors = FALSE
+          )
+        )
+      }
+
+      # print a concise on-screen diagnostic if requested
+      if (isTRUE(db) && !is.null(prob_rows) && nrow(prob_rows)) {
+        cat("\n--- parse issues ---\n")
+        print(utils::head(prob_rows, 10))
+        if (nrow(prob_rows) > 10) cat(sprintf("... and %d more\n", nrow(prob_rows) - 10))
+      }
+
+      # log to DuckDB / CSV
+      append_problem_rows(prob_rows)
+
+      # rename cols (lowercase, safe) after reading
+      if (!is.null(dat) && nrow(dat)) {
+        names(dat) <- norm(names(dat))
+        conw <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
+        on.exit(duckdb::dbDisconnect(conw, shutdown = TRUE), add = TRUE)
+        DBI::dbWriteTable(conw, tname, dat, append = TRUE, overwrite = FALSE)
+        totals <- c(totals, nrow(dat))
+      } else {
+        totals <- c(totals, 0L)
+      }
+    }
+
+    logger::log_info("{tname}: {sum(totals)} records loaded from {length(fpath)} file(s)")
+    invisible(totals)
   }
 }
 
