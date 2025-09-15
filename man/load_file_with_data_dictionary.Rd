@@ -15,8 +15,7 @@ load_file_with_data_dictionary(
   ow = FALSE,
   db = FALSE,
   log_to_duckdb = TRUE,
-  log_table = "load_problems",
-  log_csv = NULL
+  log_table = "load_problems"
 )
 }
 \arguments{

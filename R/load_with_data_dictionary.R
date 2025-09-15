@@ -115,8 +115,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
                                            reppref = FALSE, ow = FALSE,
                                            db = FALSE,
                                            log_to_duckdb = TRUE,
-                                           log_table = "load_problems",
-                                           log_csv = NULL) {
+                                           log_table = "load_problems") {
   norm <- function(x) {
     x <- trimws(tolower(as.character(x)))
     x <- gsub("[^a-z0-9]+", "_", x); gsub("_+", "_", x)
@@ -129,8 +128,8 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
 
   # get existing tables
   dbc_tmp <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = FALSE)
-  on.exit(duckdb::dbDisconnect(dbc_tmp, shutdown = TRUE), add = TRUE)
   tabs <- DBI::dbListTables(dbc_tmp)
+  DBI::dbDisconnect(dbc_tmp)
 
   if (!tname %in% tabs || ow) {
     if (ow) {
@@ -141,7 +140,8 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
     col_types <- rtrhd::construct_col_types(ddict)
 
     # discover files
-    all_files <- list.files(path = ddir, pattern = paste0(".*", fname0), full.names = TRUE, recursive = TRUE)
+    all_files <- list.files(path = ddir, pattern = paste0(".*", fname0), full.names = TRUE,
+                            recursive = TRUE)
     pattern <- rtrhd::construct_pattern(stub = fname0, protocol = proto)
     fpath <- all_files[grepl(pattern, basename(all_files), perl = TRUE)]
     if (!length(fpath)) {
@@ -152,24 +152,18 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
     # prepare problem log (DuckDB or CSV)
     append_problem_rows <- function(df) {
       if (is.null(df) || !nrow(df)) return(invisible())
-      if (!is.null(log_csv)) {
-        if (!file.exists(log_csv)) utils::write.table(df, log_csv, sep = ",", row.names = FALSE,
-                                                      col.names = TRUE)
-        else utils::write.table(df, log_csv, sep = ",", row.names = FALSE, col.names = FALSE, 
-                                append = TRUE)
-      }
       if (isTRUE(log_to_duckdb)) {
-        con_log <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
-        on.exit(duckdb::dbDisconnect(con_log, shutdown = TRUE), add = TRUE)
-        if (!DBI::dbExistsTable(con_log, log_table)) {
-          DBI::dbExecute(con_log, sprintf(
+        conl <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
+        if (!DBI::dbExistsTable(conl, log_table)) {
+          DBI::dbExecute(conl, sprintf(
             "CREATE TABLE %s (when_ts TIMESTAMP, table_name VARCHAR, file VARCHAR,
                               row INTEGER, col INTEGER, col_name VARCHAR,
                               expected VARCHAR, actual VARCHAR, problem VARCHAR);",
-            DBI::dbQuoteIdentifier(con_log, log_table)
+            DBI::dbQuoteIdentifier(conl, log_table)
           ))
         }
-        DBI::dbWriteTable(con_log, log_table, df, append = TRUE)
+        DBI::dbWriteTable(conl, log_table, df, append = TRUE)
+        DBI::dbDisconnect(conl)
       }
       invisible()
     }
@@ -269,8 +263,8 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
       if (!is.null(dat) && nrow(dat)) {
         names(dat) <- norm(names(dat))
         conw <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
-        on.exit(duckdb::dbDisconnect(conw, shutdown = TRUE), add = TRUE)
         DBI::dbWriteTable(conw, tname, dat, append = TRUE, overwrite = FALSE)
+        DBI::dbDisconnect(conw)
         totals <- c(totals, nrow(dat))
       } else {
         totals <- c(totals, 0L)
