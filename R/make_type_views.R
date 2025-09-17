@@ -9,7 +9,7 @@
 #' - names are lowercased, trimmed, and non-alphanumerics collapsed to `_`
 #' - exact normalised matches are cast; others stay as text
 #'
-#' @param con A \link[DBI]{DBIConnection} to DuckDB.
+#' @param con A DBI DBIConnection to DuckDB.
 #' @param datadict_path Path to the Excel workbook (e.g., "gold_v26.xlsx").
 #' @param name_col Column name in each sheet containing variable names.
 #'   Default \code{"name"}.

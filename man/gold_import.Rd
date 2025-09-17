@@ -16,7 +16,7 @@ gold_import(
 \item{root_dir}{Character scalar. Path to the root directory containing
 subdirectories with XML + TXT files, or containing files itself.}
 
-\item{con}{A live \link[DBI]{DBIConnection} to a DuckDB database.}
+\item{con}{A live DBIConnection to a DuckDB database.}
 
 \item{txt_glob}{Pattern for tab-delimited files. Default \code{"*.txt"}.}
 

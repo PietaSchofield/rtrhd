@@ -36,6 +36,8 @@ icd_make_db <- function(dbPath,txtPath,dbName=NULL,db=F,ow=T,
   return(dbFile) 
 }
 
+#' Load icd10 file
+#'
 #' @export
 load_icd_file <- function(tab,dbf,filelist){
   rtrhd::load_table(filename=filelist[[tab]],dbf=dbf,tab_name=tab) 

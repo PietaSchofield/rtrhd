@@ -14,7 +14,7 @@
 #'
 #' @param root_dir Character scalar. Path to the root directory containing
 #'   subdirectories with XML + TXT files, or containing files itself.
-#' @param con A live \link[DBI]{DBIConnection} to a DuckDB database.
+#' @param con A live DBIConnection to a DuckDB database.
 #' @param txt_glob Pattern for tab-delimited files. Default \code{"*.txt"}.
 #' @param xml_glob Pattern for XML schema files. Default \code{"*.xml"}.
 #' @param has_header Logical. If \code{TRUE}, the TXT files are assumed to

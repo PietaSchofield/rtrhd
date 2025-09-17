@@ -3,6 +3,8 @@ R Tools for Routine Healthcare Data
 Pieta
 2024-11-15
 
+__NB this is very much work in progress and my own convenience function library__
+
 # Motivation
 
 I currently have several CPRD project using Aurum, I will also have a

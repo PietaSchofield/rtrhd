@@ -12,21 +12,40 @@ Description: This is a collection of convenience functions generally for turning
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Imports:
-  tidyverse,
+  rlang,
+  DBI,
+  readr,
   dplyr,
   lubridate,
   duckdb,
   plyr,
-  kableExtra,
   ggplot2,
   reticulate,
   purrr,
   furrr,
   future,
+  magrittr,
+  ggsankey,
+  glue,
+  htmlwidgets,
+  jsonlite,
+  logger,
+  networkD3,
+  readxl,
+  stringr,
+  tibble,
+  xml2
+Suggests:
+  plibr,
+  remotes,
+  knitr,
+  rmarkdown,
   fs,
   ggpubr,
   logr,
-  cowplot
+  cowplot,
+  kableExtra,
+  tidyverse
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

@@ -13,7 +13,7 @@ make_typed_views(
 )
 }
 \arguments{
-\item{con}{A \link[DBI]{DBIConnection} to DuckDB.}
+\item{con}{A DBI DBIConnection to DuckDB.}
 
 \item{datadict_path}{Path to the Excel workbook (e.g., "gold_v26.xlsx").}
 

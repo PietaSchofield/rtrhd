@@ -31,7 +31,7 @@ gold_make_denom_db <- function(dbn,denomdir,linkdir,linkfield=NULL,db=F){
     practices <- practice_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
       mutate(lcd=lubridate::dmy(lcd),
              utc=lubridate::dmy(uts))
-    cprdaurumtools::load_table(dbf=dbn,dataset=practices,tab_name="practices")
+    load_table(dbf=dbn,dataset=practices,tab_name="practices")
     rm(practices)
     gc()
   }
@@ -42,7 +42,7 @@ gold_make_denom_db <- function(dbn,denomdir,linkdir,linkfield=NULL,db=F){
     if(!is.null(linkfield)){
       linkages <- linkages %>% mutate(linkdate=lubridate::dmy(linkdate))
     }
-    cprdaurumtools::load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
+    load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
     rm(linkages)
     gc()
   }
