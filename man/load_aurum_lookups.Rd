@@ -6,17 +6,6 @@
 \usage{
 load_aurum_lookups(pddir, dbf, ow = F, db = F, silent = T, prefix = "ref")
 }
-\arguments{
-\item{bdir}{the name of the batch subdirectory}
-
-\item{odir}{the name of the output directory}
-
-\item{olist}{the list of observation codes}
-
-\item{bpp}{BiocParallal Multicore Parameters
-
-Pass a table of covariate codes and generate covariates table}
-}
 \description{
-get the drugissue records and convert some fields to useful field types
+Pass a table of covariate codes and generate covariates table
 }

@@ -54,9 +54,6 @@ ingest_zips_to_duckdb <- function(dbfile, zip_dir, zip_glob = "*.zip") {
   zips <- Sys.glob(file.path(zip_dir, zip_glob))
   if (length(zips) == 0L) { message("No zips found."); return(invisible(TRUE)) }
 
-  suppressPackageStartupMessages({
-    library(DBI); library(duckdb); library(tools)
-  })
   con <- dbConnect(duckdb(dbfile, read_only = FALSE))
   on.exit({ try(dbDisconnect(con, shutdown = TRUE), silent = TRUE) }, add = TRUE)
 

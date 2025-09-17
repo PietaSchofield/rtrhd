@@ -12,7 +12,7 @@
 #' }
 #'
 #' @param lookups_dir Root directory containing lookup files.
-#' @param con A \link[DBI]{DBIConnection} to DuckDB.
+#' @param con A DBI DBIConnection to DuckDB.
 #' @param txt_glob Glob for lookup files. Default \code{"*.txt"}.
 #' @param recreate_non_txtfiles If \code{TRUE}, drop & recreate \code{lu_<filename>} tables. 
 #'        Default \code{TRUE}.

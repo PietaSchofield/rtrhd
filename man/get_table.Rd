@@ -37,8 +37,3 @@ directly or constructed from a table name and field list), and returns the resul
 as a tibble. Optionally, the query can be run with \verb{EXPLAIN ANALYZE} to inspect
 query performance.
 }
-\examples{
-get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients LIMIT 10")
-get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients WHERE age > 80", explain = TRUE)
-
-}

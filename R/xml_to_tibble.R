@@ -17,6 +17,8 @@ xml_to_tibble <- function(fileName,root,wks=3,db=F){
   nodes_table
 }
 
+#' parse and xml node
+#'
 #' @export
 parse_node <- function(node,idf){
   key_val <- xml2::xml_text(xml2::xml_find_first(node,paste0(".//",idf)))

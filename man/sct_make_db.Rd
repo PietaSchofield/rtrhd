@@ -47,11 +47,3 @@ Path to the DuckDB file.
 \description{
 Scans a folder of SNOMED CT \code{.txt} files and loads terminology and refset tables into DuckDB.
 }
-\examples{
-db_file <- sct_make_db(
-  dbPath = "myproject/db",
-  txtPath = "myproject/data/SNOMED202502",
-  incterm = c("concept", "description"),
-  increfs = c("language")
-)
-}

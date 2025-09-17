@@ -1,14 +1,10 @@
 #' load the aurum lookup tables
 #'
-#' get the drugissue records and convert some fields to useful field types
-#'
-#' @param bdir the name of the batch subdirectory
-#' @param odir the name of the output directory
-#' @param olist the list of observation codes
-#' @param bpp BiocParallal Multicore Parameters
-#'
 #'
 #' Pass a table of covariate codes and generate covariates table
+#'
+#' @import dplyr
+#' @import readr
 #'
 #' @export
 load_aurum_lookups <- function(pddir,dbf,ow=F,db=F,silent=T,prefix="ref"){

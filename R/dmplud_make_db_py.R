@@ -18,6 +18,8 @@ dmplusd_make_db_py <- function(filePath,dbPath=dirname(filePath),dbName=NULL,
   return(dbName)
 }
 
+#' get_xml_config
+#'
 #' @export
 get_xml_config <- function(xml_conf){
   xml_config <- xml2::read_xml(xml_conf)
@@ -38,6 +40,9 @@ get_xml_config <- function(xml_conf){
   return(file_list)
 }
 
+
+#' get xml data
+#'
 #' @export
 get_xml_data <- function(fl,dmddir,db=F){
   if(db){
@@ -51,6 +56,8 @@ get_xml_data <- function(fl,dmddir,db=F){
   xml_to_dataframe(fn,dsk,rsk,rnk)  
 }
 
+#' add xml data
+#'
 #' @export
 add_xml_data <- function(fl,dmddir,dbfile,db=F){
   if(db){

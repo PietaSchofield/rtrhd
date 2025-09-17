@@ -14,7 +14,7 @@ gold_load_lookup_txt(
 \arguments{
 \item{lookups_dir}{Root directory containing lookup files.}
 
-\item{con}{A \link[DBI]{DBIConnection} to DuckDB.}
+\item{con}{A DBI DBIConnection to DuckDB.}
 
 \item{txt_glob}{Glob for lookup files. Default \code{"*.txt"}.}
 

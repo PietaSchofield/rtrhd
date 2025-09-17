@@ -17,13 +17,6 @@
 #' @return Path to the DuckDB file.
 #' @importFrom magrittr %>%
 #' @export
-#' @examples
-#' db_file <- sct_make_db(
-#'   dbPath = "myproject/db",
-#'   txtPath = "myproject/data/SNOMED202502",
-#'   incterm = c("concept", "description"),
-#'   increfs = c("language")
-#' )
 sct_make_db <- function(dbPath, txtPath, dbName = NULL, db = FALSE, ow = FALSE,
                         preterm = "sct2_", posterm = "_MONOSnap.*",
                         prerefs = ".*efset_", posrefs = "MONOSnap.*",

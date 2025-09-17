@@ -16,10 +16,6 @@
 #'
 #' @return A tibble containing the result of the query, or a query plan if `explain = TRUE`.
 #' 
-#' @examples
-#' get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients LIMIT 10")
-#' get_table("mydb.duckdb", sqlstr = "SELECT * FROM patients WHERE age > 80", explain = TRUE)
-#'
 #' @export
 get_table <- function(dbf, sqlstr = NULL, tabname = NULL, fields = '*',
                       whereclause = NULL, explain = FALSE) {

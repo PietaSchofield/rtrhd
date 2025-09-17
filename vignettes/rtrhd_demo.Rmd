@@ -95,8 +95,8 @@ patient_data <- file.path(dbPath,"Aurum_Synthetic_Data","patient_data")
 lookup_data <- file.path(dbPath,"Aurum_Synthetic_Data","lookups")
   
 synthdataDb <- rtrhd::make_aurum_database(dbName,dbPath,
-                 patient_path=file.path(data_path,"patient_data"),
-                 lookup_path=file.path(data_path,"lookups"))
+                 patient_path=patient_data,
+                 lookup_path=lookup_data)
 ```
 
 This function wraps a bunch of functions that load the individual tables

@@ -9,7 +9,7 @@ make_gold_denomdb <- function(dbn,denomdir,linkdir,db=F){
     dbn <- file.path(golddir,"202409_gold.duckdb")
   }
 
-  tabs <- cprdgoldtools::list_tables(dbf=dbn)
+  tabs <- list_tables(dbf=dbn)
   if(!"acceptable_patients"%in%tabs){
     acceptable_file <- list.files(denomdir,pattern="accept",full=T,recur=T)
     acceptable <- acceptable_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
@@ -20,7 +20,7 @@ make_gold_denomdb <- function(dbn,denomdir,linkdir,db=F){
              deathdate=lubridate::dmy(deathdate),
              pracid=stringr::str_sub(patid,5))
 
-    cprdgoldtools::load_table(dbf=dbn,dataset=acceptable,tab_name="acceptable_patients",ow=T)
+    load_table(dbf=dbn,dataset=acceptable,tab_name="acceptable_patients",ow=T)
     rm(acceptable)
     gc()
   }
@@ -30,7 +30,7 @@ make_gold_denomdb <- function(dbn,denomdir,linkdir,db=F){
     practices <- practice_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
       mutate(lcd=lubridate::dmy(lcd),
              utc=lubridate::dmy(uts))
-    cprdaurumtools::load_table(dbf=dbn,dataset=practices,tab_name="practices")
+    load_table(dbf=dbn,dataset=practices,tab_name="practices")
     rm(practices)
     gc()
   }
@@ -40,7 +40,7 @@ make_gold_denomdb <- function(dbn,denomdir,linkdir,db=F){
     linkages <- linkage_file %>% readr::read_tsv(col_type=cols(.default=col_character())) %>%
       mutate(linkyear=as.integer(linkyear))
      # mutate(linkdate=lubridate::dmy(linkdate))
-    cprdaurumtools::load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
+    load_table(dbf=dbn,dataset=linkages,tab_name="linkages")
     rm(linkages)
     gc()
   }

@@ -1,0 +1,196 @@
+---
+title: "Patient Cohort Define Processing"
+author: "Pieta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{R Tools for Routine Healthcare Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+The define process in CPRD identifies patient ids for patients with certain codes (medcodeids and or
+prodcodeids) and returns a list of index dates for those code against those patients. In order to filter
+further and produce the patient id list for extraction it is necessary to find patients eligible for
+linkage and to perform any chronological criteria filtering on the index date. It is also necessary to
+define the patient ids for any matched case - controls
+
+To do this I load the define results files into a duckdb (SQL file engine database) along with the CPRD
+denominator file, and linkege eligibility files. This enable processing in R with much of the work being
+done in the duckdb engine which reduces the chances of memory issues in R.
+
+# RTRHD package
+
+I have an R package of functions I find useful for manipulating CPRD data in duckdb. It is possible once
+the data is in duckdb to either interogate the database with SQL queries via the duckdb/DBI interface or
+it is possible to use packages like dbplyr to use R tidyverse to write the SQL for you.
+
+```{r rtrhd_install_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r rtrhd_install_a, out.width='100%',comment=NA}
+require(tidyverse)
+require(plibr)
+if(!require(rtrhd)){
+  # Install from GitHub (force rebuild + upgrade deps)
+  remotes::install_github(
+    "PietaSchofield/rtrhd@main",
+    upgrade = "always",
+    force = TRUE,
+    dependencies = TRUE,
+    build_vignettes = FALSE
+  )
+}
+```
+
+# Aurum
+
+## Loading Define Results
+
+```{r data_files_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r data_files_a, out.width='100%',comment=NA}
+.locData <- file.path(Sys.getenv("HOME"),"Projects","adhdaj",".data")
+defdb <- file.path(.locData,"aurum_define.duckdb")
+zippath <- file.path(.locData,"aurum_Define")
+if(!file.exists(defdb)){
+  rtrhd::ingest_zips_to_duckdb(dbfile=defdb,zip_dir=zippath)
+}
+```
+
+This has loaded the patients we need to find people with correct order and people with linkage
+eligibility. I am not sure if I have space on the 
+
+## Linkage Eligibility & Denominator File
+
+There is a linkage eligibility datafile on the CPRDGeneralinfo Drive in the Linkage folder
+`November_2024_Source_Aurum.7z` This contains all the patient linkage eligibilities add this to the
+database to link over
+
+The denominator file give all the patients in the available in the database and can be used for control
+cohort construction by matching patients by age, sex, practice (or region via practice) and registration
+periods etc. It is not possible to match on more covariate without access to the full data so if more
+nuanced matching is required this may have to be performed after data extraction and in the case of
+ethnicity and IMD after linkage. However the denominator file give a first pass filter.
+
+The denominator files are available on th CPRDGeneralinfo Drive in the Denominators folders the current
+release is September 2025
+
+```{r denominator_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r denominator_a, out.width='100%',comment=NA}
+.locDir <- file.path(Sys.getenv("HOME"),"Projects")
+dndir <- file.path(.locDir,"datasets","aurum",".data","202509_CPRDAurum")
+lkdir <- file.path(.locDir,"datasets","aurum",".data","November_2024_Source_Aurum")
+rtrhd::make_aurum_denomdb(dbn=defdb,denomdir=dndir,linkdir=lkdir)
+```
+
+## Lookups 
+
+You can also load the CPRD look table that will permit you to link to and retrieve either medcodeid or
+prodcodeid human readable terms
+
+```{r lookups_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r lookups_a, out.width='100%',comment=NA}
+ludir <- file.path(.locDir,"datasets","aurum","202509_Lookups_CPRDAurum")
+rtrhd::load_aurum_lookups(pddir=ludir, dbf=defdb)
+```
+
+## Database
+
+This now gives a database with the patient indexes and the denominators linkage and lookups
+
+```{r database_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r database_a, out.width='100%',comment=NA}
+rtrhd::list_db(dbf=defdb) |> display_data()
+```
+
+# GOLD
+
+A similar process is available for GOLD
+
+## Loading Define Results
+
+```{r gold_data_files_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r gold_data_files_a, out.width='100%',comment=NA}
+gdefdb <- file.path(.locData,"gold_define.duckdb")
+gzippath <- file.path(.locData,"gold_Define")
+if(!file.exists(gdefdb)){
+  rtrhd::ingest_zips_to_duckdb(dbfile=gdefdb,zip_dir=gzippath)
+}
+```
+
+This has loaded the patients we need to find people with correct order and people with linkage
+eligibility. I am not sure if I have space on the 
+
+## Linkage Eligibility & Denominator File
+
+There is a linkage eligibility datafile on the CPRDGeneralinfo Drive in the Linkage folder
+`November_2024_Source_Aurum.7z` This contains all the patient linkage eligibilities add this to the
+database to link over
+
+The denominator file give all the patients in the available in the database and can be used for control
+cohort construction by matching patients by age, sex, practice (or region via practice) and registration
+periods etc. It is not possible to match on more covariate without access to the full data so if more
+nuanced matching is required this may have to be performed after data extraction and in the case of
+ethnicity and IMD after linkage. However the denominator file give a first pass filter.
+
+The denominator files are available on th CPRDGeneralinfo Drive in the Denominators folders the current
+release is September 2025
+
+```{r gold_denominator_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r gold_denominator_a, out.width='100%',comment=NA}
+gdndir <- file.path(.locDir,"datasets","gold",".data","202509_gold")
+glkdir <- file.path(.locDir,"datasets","gold",".data","November_2024_Source_GOLD")
+rtrhd::make_gold_denomdb(dbn=gdefdb,denomdir=gdndir,linkdir=glkdir)
+```
+
+## Lookups 
+
+You can also load the CPRD look table that will permit you to link to and retrieve either medcodeid or
+prodcodeid human readable terms
+
+```{r gold_lookups_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r gold_lookups_a, out.width='100%',comment=NA}
+gludir <- file.path(.locDir,"datasets","gold","202509_Lookups_CPRDGold")
+rtrhd::load_gold_lookups(pddir=gludir, dbf=gdefdb)
+```
+
+## Database
+
+This now gives a database with the patient indexes and the denominators linkage and lookups
+
+```{r gold_database_R, results='asis', echo=FALSE}
+cat(sprintf("<div style='text-align: right'><strong>R code: %s</strong></div>",
+            knitr::opts_current$get('label')))
+```
+```{r gold_database_a, out.width='100%',comment=NA}
+rtrhd::list_db(dbf=gdefdb) |> display_data()
+```
+
+
+```{r eval=F,include=F}
+plibr::compilecurrent(fileName="cohort_construction_example",projName="adhdaj",gitRepo="liverpool")
+```
