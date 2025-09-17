@@ -52,7 +52,7 @@
 ingest_zips_to_duckdb <- function(dbfile, zip_dir, zip_glob = "*.zip") {
   stopifnot(dir.exists(zip_dir))
   zips <- Sys.glob(file.path(zip_dir, zip_glob))
-  if (length(zips) == 0L) { message("No zips found."); return(invisible(NULL)) }
+  if (length(zips) == 0L) { message("No zips found."); return(invisible(TRUE)) }
 
   suppressPackageStartupMessages({
     library(DBI); library(duckdb); library(tools)
@@ -86,23 +86,51 @@ ingest_zips_to_duckdb <- function(dbfile, zip_dir, zip_glob = "*.zip") {
     invisible(TRUE)
   }
 
+  extract_with_cli <- function(zip, outdir) {
+    # -o overwrite, -q quiet; returns exit status (0 = OK)
+    status <- system2("unzip", c("-oq", shQuote(zip), "-d", shQuote(outdir)))
+    if (is.na(status) || status != 0) {
+      stop(sprintf("Failed to extract via system unzip: %s (status %s)", zip, status))
+    }
+    invisible(TRUE)
+  }
+
   for (z in zips) {
     tmp <- tempfile("unz_"); dir.create(tmp)
-    utils::unzip(z, exdir = tmp)
+
+    # use system unzip (avoids utils::unzip() spurious 'corrupt' warnings)
+    extract_with_cli(z, tmp)
+
     txts <- list.files(tmp, pattern = "\\.txt$", recursive = TRUE, full.names = TRUE)
-    if (!length(txts)) { unlink(tmp, recursive = TRUE); next }
+    if (!length(txts)) { unlink(tmp, recursive = TRUE); message("No .txt in ", basename(z)); next }
 
     for (p in txts) {
       fname <- basename(p)
+      if (grepl("_Define_log\\.txt$", fname, ignore.case = TRUE)) next
 
-      if (grepl("include_Define_log\\.txt$", fname, ignore.case = TRUE)) next
-
-      base <- if (grepl("include_Define_results\\.txt$", fname, ignore.case = TRUE)) {
-        "Patients"
+      if (grepl("_Define_results\\.txt$", fname, ignore.case = TRUE)) {
+        base <- "Patients"
       } else {
-        gsub("([ ]|_[0-9]*$)", "",
-             gsub(".*Inc[0-9]_", "", tools::file_path_sans_ext(fname)))
+        stem <- tools::file_path_sans_ext(fname)
+        # Capture: ...Inc<digits>_<label>(_<runno>)?
+        # Keep "Inc<digits>_<label>", drop trailing _### if present
+        captured <- sub(
+          "^.*?(Inc[0-9]+)_([^_].*?)(?:_[0-9]+)?$",
+          "\\1_\\2",
+          stem,
+          perl = TRUE
+        )
+
+        # Fallback if it didn’t match (keeps your old behaviour but names it clearly)
+        if (identical(captured, stem)) {
+          captured <- paste0(
+            "uncategorised_",
+            gsub("([ ]|_[0-9]*$)", "", gsub(".*Inc[0-9]_", "", stem))
+          )
+        }
+        base <- captured
       }
+
       tbl <- sanitize(base)
 
       if (file.info(p)$size <= 0) next
@@ -112,11 +140,8 @@ ingest_zips_to_duckdb <- function(dbfile, zip_dir, zip_glob = "*.zip") {
         check.names = FALSE, colClasses = "character", comment.char = ""
       )
 
-      if (!DBI::dbExistsTable(con, tbl)) {
-        DBI::dbWriteTable(con, tbl, df, temporary = FALSE)
-      } else {
-        add_missing_cols(tbl, df)
-      }
+      if (!DBI::dbExistsTable(con, tbl)) DBI::dbWriteTable(con, tbl, df, temporary = FALSE)
+      else add_missing_cols(tbl, df)
     }
 
     unlink(tmp, recursive = TRUE)
