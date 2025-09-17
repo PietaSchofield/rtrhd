@@ -154,9 +154,11 @@ ingest_zips_to_duckdb <- function(dbfile, zip_dir, zip_glob = "*.zip") {
     WHERE table_schema = 'main'
     ORDER BY table_name;")
   for (t in cats$table_name) {
-    n <- DBI::dbGetQuery(con, sprintf("SELECT COUNT(*) AS n FROM %s;", DBI::dbQuoteIdentifier(con, t)))$n
-    message(sprintf("Table %s: %,d rows", t, n))
+    n <- DBI::dbGetQuery(
+      con,
+      sprintf("SELECT COUNT(*) AS n FROM %s;", DBI::dbQuoteIdentifier(con, t))
+    )$n
+    message(sprintf("Table %s: %s rows", t, format(n, big.mark=",")))
   }
-
   invisible(TRUE)
 }
