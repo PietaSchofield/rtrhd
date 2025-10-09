@@ -12,7 +12,8 @@ load_with_data_dictionary(
   dset,
   reppref = FALSE,
   ow = FALSE,
-  db = FALSE
+  db = FALSE,
+  filetype = c("txt", "csv")
 )
 }
 \arguments{

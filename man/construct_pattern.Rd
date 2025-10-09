@@ -4,7 +4,7 @@
 \alias{construct_pattern}
 \title{Construct a Regex Pattern for Matching Data Files}
 \usage{
-construct_pattern(stub, protocol)
+construct_pattern(stub, protocol, filetype = c("txt", "csv"))
 }
 \arguments{
 \item{stub}{Base name used to identify files.}

@@ -15,7 +15,8 @@
 #' @return Invisibly returns a list of load results per sheet.
 #' @export
 load_with_data_dictionary <- function(ddFile, dbf, datadir, protocol = NULL, dset, 
-                                      reppref = FALSE, ow = FALSE, db = FALSE) {
+                                      reppref = FALSE, ow = FALSE, db = FALSE,
+                                      filetype=c("txt","csv")) {
   sheetlist <- rtrhd::read_excel_sheets_to_list(ddFile)
   res <- lapply(names(sheetlist), function(fn) {
     rtrhd::load_file_with_data_dictionary(
@@ -27,6 +28,7 @@ load_with_data_dictionary <- function(ddFile, dbf, datadir, protocol = NULL, dse
       dbf = dbf,
       proto = protocol,
       ow = ow,
+      filetype = filetype,
       db = db
     )
   })
@@ -113,9 +115,12 @@ construct_col_types <- function(data_dict,
 #' @export
 load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
                                            reppref = FALSE, ow = FALSE,
-                                           db = FALSE,
+                                           db = FALSE,filetype=c("txt","csv"),
                                            log_to_duckdb = TRUE,
                                            log_table = "load_problems") {
+  filetype <- match.arg(filetype)
+  delim <- if(identical(filetype,"csv")) "," else "\t"
+
   norm <- function(x) {
     x <- trimws(tolower(as.character(x)))
     x <- gsub("[^a-z0-9]+", "_", x); gsub("_+", "_", x)
@@ -142,8 +147,8 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
     # discover files
     all_files <- list.files(path = ddir, pattern = paste0(".*", fname0), full.names = TRUE,
                             recursive = TRUE)
-    pattern <- rtrhd::construct_pattern(stub = fname0, protocol = proto)
-    fpath <- all_files[grepl(pattern, basename(all_files), perl = TRUE)]
+    pattern <- rtrhd::construct_pattern(stub = fname0, protocol = proto,filetype=filetype)
+    fpath <- all_files[grepl(pattern, basename(all_fi/les), perl = TRUE)]
     if (!length(fpath)) {
       logger::log_warn("No files matched pattern {pattern} for {fname0}")
       return(NULL)
@@ -177,8 +182,9 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
       # capture warnings without losing detail
       dat <- withCallingHandlers(
         tryCatch(
-          readr::read_tsv(
+          readr::read_delim(
             file = fn,
+            delim = delim,
             col_types = col_types,
             progress = FALSE,
             show_col_types = FALSE,
@@ -285,16 +291,21 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
 #'
 #' @return A character string containing a regular expression.
 #' @export
-construct_pattern <- function(stub, protocol) {
-  if (is.null(protocol)) {
-    paste0(".*_", stub, "_.*.txt$")
+construct_pattern <- function(stub, protocol, filetype=c("txt","csv")) {
+  filetype <- match.arg(filetype)
+  ext <- paste0("\\.", filetype, "$")
+
+  if (is.null(protocol)&identical(filetype,"csv")) {
+    # exact filename match: stub.<ext>
+    paste0("^", stub, ext)
+  } else if (is.null(protocol)){
+    paste0("*_",stub,"_.*",ext)
+  } else if (grepl("_pathway$", stub)) {
+    # stub(_YYYY)?_protocol.<ext>
+    paste0("^", stub, "(_\\d{4})?_", protocol, ext)
   } else {
-    if (grepl("_pathway$", stub)) {
-      paste0("^", stub, "(_\\d{4})?_", protocol, "\\.txt$")
-    } else {
-      # Assumes negative lookahead is supported
-      paste0("^", stub, "(?!_pathway)(_\\d{4})?_", protocol, "\\.txt$")
-    }
+    # stub but not *_pathway, optional _YYYY, then _protocol.<ext>
+    paste0("^", stub, "(?!_pathway)(_\\d{4})?_", protocol, ext)
   }
 }
 

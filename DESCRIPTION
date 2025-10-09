@@ -25,7 +25,6 @@ Imports:
   furrr,
   future,
   magrittr,
-  ggsankey,
   glue,
   htmlwidgets,
   jsonlite,
@@ -36,6 +35,7 @@ Imports:
   tibble,
   xml2
 Suggests:
+  ggsankey,
   plibr,
   remotes,
   knitr,
@@ -48,4 +48,4 @@ Suggests:
   tidyverse
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

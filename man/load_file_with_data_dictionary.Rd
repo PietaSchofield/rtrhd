@@ -14,6 +14,7 @@ load_file_with_data_dictionary(
   reppref = FALSE,
   ow = FALSE,
   db = FALSE,
+  filetype = c("txt", "csv"),
   log_to_duckdb = TRUE,
   log_table = "load_problems"
 )
