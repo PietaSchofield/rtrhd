@@ -8,7 +8,8 @@
 #' @param datadir Directory containing the data files to be loaded.
 #' @param protocol Optional protocol string to match in filenames.
 #' @param dset Dataset name prefix used in constructing table names.
-#' @param reppref Logical; if TRUE, uses the portion after the first underscore in the filename as table suffix.
+#' @param reppref Logical; if TRUE, uses the portion after the first underscore in the filename as
+#'        table suffix.
 #' @param ow Logical; if TRUE, overwrite existing tables.
 #' @param db Logical; if TRUE, prints problems encountered during data load.
 #'
@@ -148,7 +149,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
     all_files <- list.files(path = ddir, pattern = paste0(".*", fname0), full.names = TRUE,
                             recursive = TRUE)
     pattern <- rtrhd::construct_pattern(stub = fname0, protocol = proto,filetype=filetype)
-    fpath <- all_files[grepl(pattern, basename(all_fi/les), perl = TRUE)]
+    fpath <- all_files[grepl(pattern, basename(all_files), perl = TRUE)]
     if (!length(fpath)) {
       logger::log_warn("No files matched pattern {pattern} for {fname0}")
       return(NULL)
@@ -291,21 +292,21 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
 #'
 #' @return A character string containing a regular expression.
 #' @export
-construct_pattern <- function(stub, protocol, filetype=c("txt","csv")) {
+construct_pattern <- function(stub, protocol, filetype = c("txt","csv")) {
   filetype <- match.arg(filetype)
   ext <- paste0("\\.", filetype, "$")
+  re_esc <- function(x) gsub("([][{}()+*^$|\\?.\\\\-])", "\\\\\\1", x)
 
-  if (is.null(protocol)&identical(filetype,"csv")) {
-    # exact filename match: stub.<ext>
-    paste0("^", stub, ext)
-  } else if (is.null(protocol)){
-    paste0("*_",stub,"_.*",ext)
+  stub_re <- re_esc(stub)
+  proto_re <- if (is.null(protocol)) NULL else re_esc(protocol)
+
+  if (is.null(proto_re) && identical(filetype, "csv")) {
+    paste0("^", stub_re, ext)                                 # exact: stub.csv
+  } else if (is.null(proto_re)) {
+    paste0("^.*_", stub_re, "_.*", ext)                       # ANY_prefix_stub_ANY.txt
   } else if (grepl("_pathway$", stub)) {
-    # stub(_YYYY)?_protocol.<ext>
-    paste0("^", stub, "(_\\d{4})?_", protocol, ext)
+    paste0("^", stub_re, "(_\\d{4})?_", proto_re, ext)        # *_pathway(_YYYY)?_proto.ext
   } else {
-    # stub but not *_pathway, optional _YYYY, then _protocol.<ext>
-    paste0("^", stub, "(?!_pathway)(_\\d{4})?_", protocol, ext)
+    paste0("^", stub_re, "(_\\d{4})?_", proto_re, ext)        # stub(_YYYY)?_proto.ext
   }
 }
-
