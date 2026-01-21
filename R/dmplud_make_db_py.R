@@ -6,15 +6,19 @@ dmplusd_make_db_py <- function(filePath,dbPath=dirname(filePath),dbName=NULL,
                                                       db=F,ow=F){
   if(db){
     db <- T
-    filePath <- dmplusddir
-    dbPath <- dirname(filePath)
+    filePath <- files
+    dmddir <- files
+    dbPath <- dirname(files)
     wks <- 15
     ow <- T
-    dbName <- ddbFile
+    dbName <- file.path(dbPath,dbname)
+    xml_config <- system.file("xml","dmd_structure.xml",package="rtrhd")
   }
+  reticulate::py_install("xmltodict")
+
   reticulate::source_python(system.file("python","xml_to_dataframe.py",package="rtrhd"))
-  file_list <- get_xml_config(xml_config)
-  makedb <- lapply(file_list,add_data,filePath,dbName)
+  file_list <- rtrhd::get_xml_config(xml_config)
+  makedb <- lapply(file_list,rtrhd::add_xml_data,filePath,dbName)
   return(dbName)
 }
 
@@ -47,7 +51,6 @@ get_xml_config <- function(xml_conf){
 get_xml_data <- function(fl,dmddir,db=F){
   if(db){
     fl <- file_list[[1]]
-    dmddir <- dmplusddir
   }
   fn <- list.files(file.path(dmddir,"xml"),pattern=fl$file_name,recur=T,full=T)
   dsk <- fl$dataset_key
@@ -62,13 +65,13 @@ get_xml_data <- function(fl,dmddir,db=F){
 add_xml_data <- function(fl,dmddir,dbfile,db=F){
   if(db){
     fl <- file_list[[1]]
-    dmddir <- dmplusddir
-    dbfile <- ddbFile
+    fl[["file_name"]] <- "f_vtm2.*xml"
+    dbfile <- dbname
   }
   tn <- fl$table_name
-  dat <- get_data(fl,dmddir)
+  dat <- get_xml_data(fl,dmddir)
   if(nrow(dat)>0){
-    rtrhd::load_table(dbf=dbfile,dataset=dat,tab_name=tn,ow=F)
+    rtrhd::load_table(dbf=dbfile,dataset=dat,tab_name=tn,ow=T)
   }
 }
 
