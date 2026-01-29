@@ -27,7 +27,8 @@ load_with_data_dictionary(
 
 \item{dset}{Dataset name prefix used in constructing table names.}
 
-\item{reppref}{Logical; if TRUE, uses the portion after the first underscore in the filename as table suffix.}
+\item{reppref}{Logical; if TRUE, uses the portion after the first underscore in the filename as
+table suffix.}
 
 \item{ow}{Logical; if TRUE, overwrite existing tables.}
 

@@ -2,43 +2,33 @@
 % Please edit documentation in R/trinetx_ingest.R
 \name{trinetx_ingest}
 \alias{trinetx_ingest}
-\title{Ingest tables into DuckDB from an Excel data dictionary}
+\title{Ingest TriNetX tables into DuckDB from an Excel data dictionary}
 \usage{
 trinetx_ingest(
   dict_xlsx,
   data_dir,
   db_path,
   filetype = c("csv", "txt"),
-  overwrite = TRUE
+  overwrite = TRUE,
+  tables = NULL
 )
 }
 \arguments{
-\item{dict_xlsx}{Path to the Excel data dictionary (one sheet per table).}
+\item{dict_xlsx}{Path to the Excel data dictionary.}
 
 \item{data_dir}{Directory containing the data files.}
 
-\item{db_path}{Path to the DuckDB database file to create/use.}
+\item{db_path}{Path to the DuckDB database file.}
 
-\item{filetype}{File extension to load; one of \code{"csv"} or \code{"txt"}.}
+\item{filetype}{One of "csv" or "txt".}
 
-\item{overwrite}{Logical; if \code{TRUE}, drops and recreates existing tables.}
+\item{overwrite}{If TRUE, drops existing tables before load.}
 }
 \value{
-Invisibly returns a named list with rows loaded per table.
+Invisibly, a named list of rows loaded per table.
 }
 \description{
 Reads an Excel data dictionary with one sheet per table (columns: "Field name", "Type", "Format"),
-creates DuckDB tables with mapped types, and ingests data files that exactly match each sheet name
-(e.g. \code{sheet.csv} or \code{sheet.txt}, optionally \code{.gz}) directly via DuckDB.
-}
-\examples{
-\dontrun{
-duckdb_ingest_from_dictionary(
-  dict_xlsx = "datadictionary_reshaped.xlsx",
-  data_dir  = "data/",
-  db_path   = "dataset.duckdb",
-  filetype  = "csv",
-  overwrite = TRUE
-)
-}
+creates DuckDB tables, and ingests data files that exactly match each sheet name
+(e.g. sheet "patient.csv" -> file "patient.csv", case-insensitive; also supports ".csv.gz").
 }
