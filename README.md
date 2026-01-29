@@ -5,42 +5,37 @@ Pieta
 
 __NB this is very much work in progress and my own convenience function library__
 
+__NBB These instructions are some what superseded by the [CPRD wrangling GitHub](https://github.com/PietaSchofield/cprdwrangling) 
+approach still load it all into duckdb, but I have switched to using dbplyr and Lazy Evaluation rather
+than raw SQL__
+
 # Motivation
 
-I currently have several CPRD project using Aurum, I will also have a
-GOLD project soon. There are some common steps that need to be achieved
-with these projects.
+I currently have several CPRD project using Aurum, I will also have a GOLD project soon. There are some
+common steps that need to be achieved with these projects.
 
-The idea is that if I can import the data into an
-[DuckDB](https://github.com/duckdb/duckdb) database it will permit the
-use of SQL to join and extract data for the process of linkage and
-cleaning. This also means the original text files need only be visited
-once. Some projects have billions of observation records so managing
-them in memory in R is not really feasible. DuckDB also has [a well
-documented R api](https://duckdb.org/docs/api/r) and some very nifty SQL
-dialect aspects that are worth discovering. Its biggest frustration for
-me at the moment is that it seems to have a 1024 character limit on SQL
-statements and many of my SQL statements are more complex that that
-permits. So I have to do some queries in steps creating temporary tables
-rather than one big query. I am not sure if investing the time to learn
-[dbplyr](https://dbplyr.tidyverse.org/) might be a neat tidyverse
-solution to this, but I have been using SQL for almost 40 years and
-perhaps I getting long in the tooth to learn quite so many new tricks.
+The idea is that if I can import the data into an [DuckDB](https://github.com/duckdb/duckdb) database it
+will permit the use of SQL to join and extract data for the process of linkage and cleaning. This also
+means the original text files need only be visited once. Some projects have billions of observation
+records so managing them in memory in R is not really feasible. DuckDB also has [a well documented R
+api](https://duckdb.org/docs/api/r) and some very nifty SQL dialect aspects that are worth discovering.
+Its biggest frustration for me at the moment is that it seems to have a 1024 character limit on SQL
+statements and many of my SQL statements are more complex that that permits. So I have to do some queries
+in steps creating temporary tables rather than one big query. I am not sure if investing the time to
+learn [dbplyr](https://dbplyr.tidyverse.org/) might be a neat tidyverse solution to this, but I have been
+using SQL for almost 40 years and perhaps I getting long in the tooth to learn quite so many new tricks.
 
-**NB. DuckDB can take a long time to install, a longer time than you
-think is reasonable but I have never had it crash on installing so be
-patient**
+**NB. DuckDB can take a long time to install, a longer time than you think is reasonable but I have never
+had it crash on installing so be patient**
 
 ## Caveat
 
-This is work in progress and is an amalgamation of functions I have
-written over the years and found useful but exist in many disparate
-packages. This is my attempt to put the really useful ones in one place.
-There are still some to import, namely the HES APC data ONS data and IMD
-data import. There are also other functions to be written yet.
+This is work in progress and is an amalgamation of functions I have written over the years and found
+useful but exist in many disparate packages. This is my attempt to put the really useful ones in one
+place.  There are still some to import, namely the HES APC data ONS data and IMD data import. There are
+also other functions to be written yet.
 
-There are a suite of matching GOLD data processing functions that as yet
-have not been imported
+There are a suite of matching GOLD data processing functions that as yet have not been imported
 
 ## Install
 
@@ -82,30 +77,25 @@ if(!require("rtrhd")){
 
 ## Setup
 
-I have access to the CPRD Aurum Synthetic Dataset which I will I can
-share with folk at Liverpool University as we have Multi-Study License.
-But I cannot distribute with this package. It is what I use in this
-demo. Unfortunately it only has single files for each table unlike the
-usual many many observation and drug_issue files. So it doesn’t totally
-test the functionality of the table load functions.
+I have access to the CPRD Aurum Synthetic Dataset which I will I can share with folk at Liverpool
+University as we have Multi-Study License.  But I cannot distribute with this package. It is what I use
+in this demo. Unfortunately it only has single files for each table unlike the usual many many
+observation and drug_issue files. So it doesn’t totally test the functionality of the table load
+functions.
 
 ### Paths
 
-It is important the patient data and the lookups are in separate
-directory trees and while the code recursively searches down the patient
-data tree for files so they can be in subdirectories by table name (or
-not) the code identifies files to import by wildcards and having the
-Patienttype lookup in the same subtree as the Patient file(s) will break
-the import of patients.
+It is important the patient data and the lookups are in separate directory trees and while the code
+recursively searches down the patient data tree for files so they can be in subdirectories by table name
+(or not) the code identifies files to import by wildcards and having the Patienttype lookup in the same
+subtree as the Patient file(s) will break the import of patients.
 
 ### Make the DuckDb
 
-I will use the duckdb package because it is reasonalbly fast for some
-analytics processing. It is slightly better tuned to this task than the
-current itteration of SQLite and I am not going to write this to be
-flexible enough to use a generic DBI SQL connection. I will leave that
-as a task for the dedicated and just make the source code fully
-available
+I will use the duckdb package because it is reasonalbly fast for some analytics processing. It is
+slightly better tuned to this task than the current itteration of SQLite and I am not going to write this
+to be flexible enough to use a generic DBI SQL connection. I will leave that as a task for the dedicated
+and just make the source code fully available
 
 <div style="text-align: right">
 
@@ -245,36 +235,29 @@ res %>% ggplot(aes(x=observations)) + geom_histogram(binwidth=10,fill="blue",col
 
 ## Other Stuff
 
-There are several functions for importing SNOMED CT and DMplusD data
-available from TRUD. However the current manefestation of the DMplusD
-import uses R to import the xml files and this is very very slow unless
-your computer is powerful and a has a lot of memory. It still takes
-significant time on my 20 core 64GB RAM machine. I have found a quicker
-way to do this using calls to python scripts but this is not fully
-implemented yet.
+There are several functions for importing SNOMED CT and DMplusD data available from TRUD. However the
+current manefestation of the DMplusD import uses R to import the xml files and this is very very slow
+unless your computer is powerful and a has a lot of memory. It still takes significant time on my 20 core
+64GB RAM machine. I have found a quicker way to do this using calls to python scripts but this is not
+fully implemented yet.
 
-Talking of slow. Duckdb takes a long time to install first time round
-and when it update it can also be slow but I think it is worth it.
+Talking of slow. Duckdb takes a long time to install first time round and when it update it can also be
+slow but I think it is worth it.
 
 ## Finally
 
-This has been developed on linux and not install and tested on windows
-or mac so there is not guarantee it will work. It is actively being
-developed and while I will probably try to not change functionality it
-is definitely a moving target and as such I haven’t yet started to
-version control it. It is currently morphing on a bleeding edge model.
-If anyone else does actually start using it I will make the effort to
-change to a release model. But as I am the only user at the moment it
-hasn’t seemed necessary.
+This has been developed on linux and not install and tested on windows or mac so there is not guarantee
+it will work. It is actively being developed and while I will probably try to not change functionality it
+is definitely a moving target and as such I haven’t yet started to version control it. It is currently
+morphing on a bleeding edge model.  If anyone else does actually start using it I will make the effort to
+change to a release model. But as I am the only user at the moment it hasn’t seemed necessary.
 
-I also haven’t done clean install to check that I have all the
-dependencies in the Imports list so there maybe some I haven’t caught
-yet.
+I also haven’t done clean install to check that I have all the dependencies in the Imports list so there
+maybe some I haven’t caught yet.
 
 # By The Way
 
-This is the code that built the vignette and the README markdown for the
-GitHub repository
+This is the code that built the vignette and the README markdown for the GitHub repository
 
 <div style="text-align: right">
 
