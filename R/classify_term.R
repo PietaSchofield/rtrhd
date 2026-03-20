@@ -1,47 +1,63 @@
-#' Assign one or more body‑system labels to a term
+##' Classify a SNOMED term into system (clinical thinking) and activity
 #'
-#' @param term A character vector (one element per concept label/synonym).
-#' @param patterns Optional pre‑compiled pattern list (see
-#'        [load_system_patterns()]).  If omitted the function will load the
-#'        default bundled CSV on first call and cache the result.
-#' @return A character vector of the same length as `term`.  Each element is
-#'         either a pipe‑separated list of matching system classes
-#'         (e.g. `"Neurological|Vascular"`) or `"Vague"` when nothing matches.
+#' Uses regex stub dictionaries to classify a SNOMED CT term into:
+#' \itemize{
+#'   \item Clinical system / "what the clinician was thinking" (e.g. MSK, Respiratory)
+#'   \item Type of activity (e.g. Imaging, Referral, Procedure)
+#' }
+#'
+#' @param term A character string representing a SNOMED term.
+#' @param thinking_df A data frame with columns:
+#'   \describe{
+#'     \item{stub}{Regex pattern}
+#'     \item{thought}{Clinical system label}
+#'   }
+#' @param activity_df A data frame with columns:
+#'   \describe{
+#'     \item{stub}{Regex pattern}
+#'     \item{activity}{Activity label}
+#'   }
+#'
+#' @return A tibble with columns:
+#'   \describe{
+#'     \item{term}{Input SNOMED term}
+#'     \item{system}{Matched clinical system(s)}
+#'     \item{activity}{Matched activity type(s)}
+#'   }
+#'   Returns all combinations if multiple matches occur.
+#'
+#' @importFrom stringr str_detect str_to_lower
+#' @importFrom dplyr filter mutate pull
+#' @importFrom tidyr expand_grid
+#' @importFrom tibble tibble
+#'
 #' @export
-#' @examples
-#' assign_system(c("myocardial infarction", "headache", "apple"))
-#' #> [1] "Cardio"               "Neurological|Vascular" "Vague"
-assign_class <- function(term, patterns = NULL) {
-  if (!is.character(term)) {
-    stop("`term` must be a character vector", call. = FALSE)
-  }
+classify_snomed_term <- function(term, thinking_df, activity_df) {
 
-  # Lazily load & cache the pattern list
-  if (is.null(patterns)) {
-    if (!exists(".system_patterns_cache", envir = .GlobalEnv, inherits = FALSE)) {
-      assign(".system_patterns_cache", load_system_patterns(),
-             envir = .GlobalEnv)
-    }
-    patterns <- get(".system_patterns_cache", envir = .GlobalEnv)
-  }
+  # Normalize input
+  term_clean <- stringr::str_to_lower(term)
 
-  # `str_detect()` is already vectorised over both the string and the pattern.
-  # We loop over the *classes* (usually < 30) and collect the matches.
-  matches <- lapply(patterns, function(pat) stringr::str_detect(term, pat))
+  # Match clinical thinking (system)
+  systems <- thinking_df %>%
+    dplyr::mutate(match = stringr::str_detect(term_clean, stub)) %>%
+    dplyr::filter(match) %>%
+    dplyr::pull(thought) %>%
+    unique()
 
-  # Turn the list of logical vectors into a matrix (rows = terms, cols = classes)
-  matches_mat <- do.call(cbind, matches)
-  colnames(matches_mat) <- names(patterns)
+  # Match activity
+  activities <- activity_df %>%
+    dplyr::mutate(match = stringr::str_detect(term_clean, stub)) %>%
+    dplyr::filter(match) %>%
+    dplyr::pull(activity) %>%
+    unique()
 
-  # For each row, paste together the column names where the entry is TRUE
-  res <- apply(matches_mat, 1, function(row) {
-    sys <- colnames(matches_mat)[row]
-    if (length(sys) == 0) {
-      "Vague"
-    } else {
-      paste(sys, collapse = "|")
-    }
-  })
+  # Handle no matches
+  if (length(systems) == 0) systems <- "Vague"
+  if (length(activities) == 0) activities <- "Vague"
 
-  res
+  # Return all combinations
+  tidyr::expand_grid(
+    system = systems,
+    activity = activities
+  )
 }

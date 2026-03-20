@@ -2,32 +2,34 @@
 % Please edit documentation in R/export_classifier_patterns.R
 \name{export_system_patterns}
 \alias{export_system_patterns}
-\title{Export a pattern list (regex objects or plain strings) to a two‑column CSV}
+\title{Export a pattern list (regex objects or plain strings) to a key‑value CSV}
 \usage{
 export_system_patterns(patterns, file)
 }
 \arguments{
-\item{patterns}{A named list.  Each element can be either
-* a pre‑compiled regex object (as returned by \link[stringr:modifiers]{stringr::regex} or by
-\link{load_system_patterns}), \strong{or}
+\item{patterns}{A \strong{named list}.  Each element may be
+* a pre‑compiled regex object (as returned by \code{\link[stringr]{regex}} or
+by \code{\link{load_system_patterns}}), \strong{or}
 * a plain character string containing the pattern.
 The list names become the \code{class} column.}
 
 \item{file}{Path to the CSV file to write (overwrites if it exists).}
 }
 \description{
-The CSV has columns:
-\itemize{
-\item \code{class} – the name that should be returned for matches
-\item \code{stub}  – the literal pattern string (as it would appear in the source CSV)
+The resulting CSV has two columns:
+\describe{
+\item{class}{the name that should be returned for matches (e.g. "Urinary")}
+\item{stub}{the literal pattern string – pipe‑separated alternatives that were
+used to build the regex.  Empty stubs are interpreted by
+\code{\link{load_system_patterns}} as the \code{"Vague"} fallback.}
 }
 }
 \examples{
 \dontrun{
-  # 1️⃣ Load once (or reuse a cached copy)
+  # Suppose you already have the list (maybe from load_system_patterns())
   sys_pats <- load_system_patterns()
 
-  # 2️⃣ Export – works whether sys_pats holds regex objects or strings
+  # Export it – works whether sys_pats holds regex objects or plain strings
   export_system_patterns(sys_pats,
                         file = "inst/extdata/snomed_system_stubs.csv")
 }

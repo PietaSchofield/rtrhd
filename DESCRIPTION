@@ -33,7 +33,8 @@ Imports:
   readxl,
   stringr,
   tibble,
-  xml2
+  xml2,
+  tidyr
 Suggests:
   ggsankey,
   plibr,
