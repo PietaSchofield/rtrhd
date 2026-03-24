@@ -20,6 +20,15 @@
 #'
 #' @export
 classify_term_weighted <- function(term, thinking_df, activity_df, normalize = FALSE) {
+
+  if(is.na(term || term == "")) return(
+    tibble::tibble(
+      system = NA_character_,
+      system_score = NA_real,
+      activity = NA_character_,
+      activity_score = NA_real_
+      )
+    )
   
   term_lower <- str_to_lower(term)
   
