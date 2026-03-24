@@ -132,19 +132,32 @@ trinetx_ingest <- function(dict_xlsx,
     file_cols <- names(DBI::dbGetQuery(con, peek_sql))
 
     # build field list (using the improved strptime handling)
-    fields <- sc$fields; types <- sc$types; fmts <- trimws(df$Format)
+    qid <- function(x) DBI::dbQuoteIdentifier(con, x)
+
+    fields <- sc$fields
+    types <- sc$types
+    fmts <- trimws(df$Format)
+
     present <- fields %in% file_cols
+    
     sel_parts <- mapply(function(f, t, fmt, pres) {
-      if (!pres) return(sprintf("CAST(NULL AS %s) AS %s", t, f))
+
+      f_q <- as.character(qid(f))
+
+      if (!pres) return(sprintf("CAST(NULL AS %s) AS %s", t, f_q))
+
       if (t == "TIMESTAMP") {
         fmt <- if (is.na(fmt) || fmt == "") "%Y-%m-%d %H:%M:%S" else fmt
-        return(sprintf("strptime(CAST(%s AS VARCHAR), '%s') AS %s", f, fmt, f))
+        return(sprintf("strptime(CAST(%s AS VARCHAR), '%s') AS %s", f_q, fmt, f_q))
       }
+
       if (t == "DATE") {
         fmt <- if (is.na(fmt) || fmt == "") "%Y-%m-%d" else fmt
-        return(sprintf("CAST(strptime(CAST(%s AS VARCHAR), '%s') AS DATE) AS %s", f, fmt, f))
+        return(sprintf("CAST(strptime(CAST(%s AS VARCHAR), '%s') AS DATE) AS %s", f_q, fmt, f_q))
       }
-      sprintf("CAST(%s AS %s) AS %s", f, t, f)
+
+      sprintf("CAST(%s AS %s) AS %s", f_q, t, f_g)
+
     }, fields, types, fmts, present, USE.NAMES = FALSE)
 
     sql <- paste0(
