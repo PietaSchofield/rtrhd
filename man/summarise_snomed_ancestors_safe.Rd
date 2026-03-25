@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarise_snomed_ancestors.R
 \name{summarise_snomed_ancestors_safe}
 \alias{summarise_snomed_ancestors_safe}
-\title{Summarise SNOMED Ancestor Semantics (Memory-Safe, DuckDB-First)}
+\title{Summarise SNOMED Ancestor Semantics (Final Semantic, Shortest FSN, Clean Words)}
 \usage{
 summarise_snomed_ancestors_safe(
   db_path,
@@ -16,61 +16,22 @@ summarise_snomed_ancestors_safe(
 \arguments{
 \item{db_path}{Character. Path to the DuckDB database file.}
 
-\item{concept_table}{Character. Name of the concept table.
-Default: \code{"terminology_concept"}.}
+\item{concept_table}{Character. Name of the concept table (default: "terminology_concept").}
 
-\item{description_table}{Character. Name of the description table.
-Default: \code{"terminology_description"}.}
+\item{description_table}{Character. Name of the description table (default: "terminology_description").}
 
-\item{relationship_table}{Character. Name of the relationship table.
-Default: \code{"terminology_relationship"}.}
+\item{relationship_table}{Character. Name of the relationship table (default: "terminology_relationship").}
 
-\item{stopwords}{Character vector of stopwords to remove.
-Default: \code{tidytext::get_stopwords()$word}.}
+\item{stopwords}{Character vector of stopwords to remove (default: tidytext::get_stopwords()$word).}
 
-\item{threads}{Integer. Number of DuckDB threads to use.
-Default: \code{8}.}
+\item{threads}{Integer. Number of DuckDB threads (default: 8).}
 }
 \value{
-A tibble with columns:
-\describe{
-\item{conceptId}{SNOMED concept ID}
-\item{ancestorId}{Ancestor concept ID}
-\item{semantic}{Semantic tag extracted from FSN}
-\item{words}{Space-separated unique word summary}
-}
+A tibble with columns: conceptId, ancestorId, semantic, words
 }
 \description{
 Computes word-level semantic summaries for all SNOMED concepts and their
-transitive ancestors using a DuckDB-first approach. This implementation avoids
-list-columns and parallel R processing, making it suitable for large datasets
-(10M+ rows) without exhausting system memory.
-}
-\details{
-Text processing (tokenisation, stopword removal, and aggregation) is performed
-inside DuckDB using SQL, ensuring efficient streaming and minimal memory
-overhead in R.
-
-This function:
-\itemize{
-\item Computes recursive SNOMED "is-a" ancestry using DuckDB
-\item Cleans and normalises Fully Specified Names (FSNs)
-\item Tokenises descriptions into words using SQL (\code{string_split} + \code{unnest})
-\item Removes stopwords via an in-database join
-\item Applies simple singularisation rules
-\item Aggregates unique words per concept–ancestor pair
-}
-
-Compared to list-column or \code{furrr}-based approaches, this implementation:
-\itemize{
-\item Avoids memory amplification from nested R objects
-\item Avoids parallel process duplication
-\item Leverages DuckDB’s query planner and disk spilling
-}
-}
-\examples{
-\dontrun{
-result <- summarise_snomed_ancestors_safe("snomed.duckdb")
-}
-
+transitive ancestors. For each ancestor and semantic tag, the shortest
+Fully Specified Name (FSN) is selected. Only the final semantic (last parentheses)
+is captured, ensuring accurate abstraction for higher-level summaries.
 }
