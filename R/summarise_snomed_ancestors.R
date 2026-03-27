@@ -58,7 +58,7 @@ summarise_snomed_ancestors_safe <- function(
       JOIN {relationship_table} r
         ON r.sourceId = a.ancestorId
       WHERE r.active = '1'
-        AND r.typeId = '116680003'
+        AND r.typeId IN ('116680003','363398007','116676008')
         AND r.destinationId != a.ancestorId
     ),
 
