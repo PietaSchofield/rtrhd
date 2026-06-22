@@ -187,6 +187,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
             file = fn,
             delim = delim,
             col_types = col_types,
+            name_repair = function(x) norm(x),
             progress = FALSE,
             show_col_types = FALSE,
             locale = readr::locale(encoding = "UTF-8", decimal_mark = ".")
@@ -268,7 +269,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
 
       # rename cols (lowercase, safe) after reading
       if (!is.null(dat) && nrow(dat)) {
-        names(dat) <- norm(names(dat))
+#        names(dat) <- norm(names(dat))
         conw <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
         DBI::dbWriteTable(conw, tname, dat, append = TRUE, overwrite = FALSE)
         DBI::dbDisconnect(conw)
