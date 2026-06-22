@@ -305,8 +305,8 @@ construct_pattern <- function(stub, protocol, filetype = c("txt","csv")) {
   } else if (is.null(proto_re)) {
     paste0("^.*_", stub_re, "_.*", ext)                       # ANY_prefix_stub_ANY.txt
   } else if (grepl("_pathway$", stub)) {
-    paste0("^", stub_re, "(_\\d{4})?_", proto_re, ext)        # *_pathway(_YYYY)?_proto.ext
+    paste0("^", stub_re, "(_\\d{3})?_", proto_re, ext)        # *_pathway(_YYYY)?_proto.ext
   } else {
-    paste0("^", stub_re, "(_\\d{4})?_", proto_re, ext)        # stub(_YYYY)?_proto.ext
+    paste0("^", stub_re, "(_\\d{3})?_", proto_re, ext)        # stub(_YYYY)?_proto.ext
   }
 }
