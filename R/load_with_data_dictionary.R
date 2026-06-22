@@ -189,6 +189,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
             col_types = col_types,
             name_repair = function(x) norm(x),
             progress = FALSE,
+            quote = "",
             show_col_types = FALSE,
             locale = readr::locale(encoding = "UTF-8", decimal_mark = ".")
           ),
