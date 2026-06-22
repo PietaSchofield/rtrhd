@@ -8,10 +8,12 @@ export_system_patterns(patterns, file)
 }
 \arguments{
 \item{patterns}{A \strong{named list}.  Each element may be
-* a pre‑compiled regex object (as returned by \code{\link[stringr]{regex}} or
+\itemize{
+\item a pre‑compiled regex object (as returned by \code{\link[stringr]{regex}} or
 by \code{\link{load_system_patterns}}), \strong{or}
-* a plain character string containing the pattern.
-The list names become the \code{class} column.}
+\item a plain character string containing the pattern.
+The list names become the \code{class} column.
+}}
 
 \item{file}{Path to the CSV file to write (overwrites if it exists).}
 }

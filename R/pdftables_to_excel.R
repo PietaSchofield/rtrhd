@@ -8,6 +8,9 @@ pdftables_to_excel <- function(fileName,outFile,silent=F){
   if(!reticulate::py_module_available("xlsxwriter")){
     reticulate::py_install("xlsxwriter")
   }
+  if(!reticulate::py_module_available("pandas")){
+    reticulate::py_install("pandas")
+  }
 
   reticulate::source_python(system.file("python","extract_tabs.py",package="rtrhd"))
 

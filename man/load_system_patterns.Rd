@@ -13,7 +13,7 @@ called from inside a package.}
 }
 \value{
 A named list where each element is a \strong{pre‑compiled} regex
-object (as returned by \code{\link[stringr:modifiers]{stringr::regex()}}) for the corresponding
+object (as returned by \code{\link[stringr:regex]{stringr::regex()}}) for the corresponding
 class.  The list also contains an element \code{"Vague"} whose value
 is \code{NULL} (used only as a sentinel).
 }

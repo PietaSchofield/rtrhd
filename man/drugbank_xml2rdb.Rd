@@ -4,7 +4,14 @@
 \alias{drugbank_xml2rdb}
 \title{Parse DrugBank XML to DuckDB (long format, batch inserts)}
 \usage{
-drugbank_xml2rdb(xml_file, duckdb_file, batchsize = 5000, overwrite = FALSE)
+drugbank_xml2rdb(
+  xml_file,
+  duckdb_file,
+  batchsize = 5000,
+  overwrite = FALSE,
+  log_every = 500,
+  est_total_drugs = 2e+05
+)
 }
 \arguments{
 \item{xml_file}{Path to full_database.xml}

@@ -43,8 +43,7 @@
 #' )
 #' }
 #'
-#' @importFrom DBI dbConnect dbDisconnect dbExecute dbExistsTable dbListFields
-#'   dbQuoteIdentifier dbGetQuery
+#' @importFrom DBI dbConnect dbDisconnect dbExecute dbExistsTable dbListFields dbQuoteIdentifier dbGetQuery
 #' @import duckdb
 #' @importFrom tools file_path_sans_ext
 #' @importFrom utils unzip read.delim
