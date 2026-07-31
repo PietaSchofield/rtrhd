@@ -19,11 +19,12 @@ trinetx_ingest <- function(dict_xlsx,
                            tables = NULL) {
   filetype <- match.arg(filetype)
 
-  # deps
   stopifnot(file.exists(dict_xlsx), dir.exists(data_dir))
   reqp <- c("DBI","duckdb","readxl")
   miss <- reqp[!vapply(reqp, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
   if (length(miss)) stop("Missing packages: ", paste(miss, collapse=", "), call. = FALSE)
+
+  `%||%` <- function(a,b) if (is.null(a) || length(a)==0) b else a
 
   norm <- function(x) {
     x <- trimws(tolower(as.character(x)))
@@ -40,25 +41,25 @@ trinetx_ingest <- function(dict_xlsx,
     if (t == "DATETIME")                   return("TIMESTAMP")
     "VARCHAR"
   }
-  `%||%` <- function(a,b) if (is.null(a) || length(a)==0) b else a
 
-  build_schema <- function(df) {
+  # NOTE now takes `con` so it can quote identifiers consistently.
+  # THIS quoting is the fix for the March "TYPE" field SNAFU.
+  build_schema <- function(df, con) {
     cols_needed <- c("Field name","Type","Format")
     if (!all(cols_needed %in% names(df)))
       stop("Sheet must contain columns: ", paste(cols_needed, collapse=", "), call. = FALSE)
     fields <- norm(df[["Field name"]])
     types  <- mapply(map_duck_type, df[["Type"]], df[["Format"]], USE.NAMES = FALSE)
-    ddl    <- paste0(fields, " ", types, collapse = ", ")
+    quoted_fields <- vapply(fields, function(f) as.character(DBI::dbQuoteIdentifier(con, f)),
+                             character(1))
+    ddl <- paste0(quoted_fields, " ", types, collapse = ", ")
     list(fields = fields, types = types, ddl = ddl)
   }
 
-  # connect
   con <- DBI::dbConnect(duckdb::duckdb(), db_path)
-  DBI::dbExecute(con, sprintf("PRAGMA threads=%d;",(parallel::detectCores()-2)))
-  # (optional) more throughput on big CSVs:
-  DBI::dbExecute(con, "PRAGMA memory_limit='32GB';")  # adjust to your RAM
-  on.exit(try(DBI::dbDisconnect(con, shutdown = TRUE),
-              silent = TRUE), add = TRUE)
+  DBI::dbExecute(con, sprintf("PRAGMA threads=%d;", max(1, parallel::detectCores() - 2)))
+  DBI::dbExecute(con, "PRAGMA memory_limit='32GB';")
+  on.exit(try(DBI::dbDisconnect(con, shutdown = TRUE), silent = TRUE), add = TRUE)
 
   all_sheets <- readxl::excel_sheets(dict_xlsx)
   stem <- function(x) sub("\\.(csv|txt)$","",x,ignore.case=TRUE)
@@ -66,15 +67,14 @@ trinetx_ingest <- function(dict_xlsx,
 
   results <- list()
 
-  # pre-list files once (case-insensitive match)
   all_files <- list.files(data_dir,
                           pattern = paste0("\\.", filetype, "(\\.gz)?$"),
                           full.names = TRUE, recursive = TRUE)
   base_lower <- tolower(basename(all_files))
 
-  if(is.null(tables)){
+  if (is.null(tables)) {
     sheets <- all_sheets
-  }else{
+  } else {
     want <- tolower(stem(tables))
     keep <- tolower(all_stems) %in% want
     sheets <- all_sheets[keep]
@@ -93,19 +93,17 @@ trinetx_ingest <- function(dict_xlsx,
     df <- readxl::read_excel(dict_xlsx, sheet = sh)
     names(df) <- trimws(names(df))
 
-    sc <- try(build_schema(df), silent = TRUE)
+    sc <- try(build_schema(df, con), silent = TRUE)
     if (inherits(sc, "try-error")) {
       cat("  ! skipped (bad schema)\n")
       next
     }
 
-    # skip if already in DB and not overwriting
     if (!overwrite && DBI::dbExistsTable(con, tname)) {
       cat("  ✔ already exists, skipping\n")
       next
     }
 
-    # find file
     want <- tolower(c(paste0(sh_stem, ".", filetype),
                       paste0(sh_stem, ".", filetype, ".gz")))
     idx <- which(base_lower %in% want)
@@ -115,14 +113,13 @@ trinetx_ingest <- function(dict_xlsx,
     }
     fpath <- all_files[idx[1]]
 
-    # (re)create table
-    if (overwrite && DBI::dbExistsTable(con, tname))
+    if (overwrite && DBI::dbExistsTable(con, tname)) {
       DBI::dbExecute(con, paste0("DROP TABLE IF EXISTS ",
                   DBI::dbQuoteIdentifier(con, tname)))
-      DBI::dbExecute(con, paste0("CREATE TABLE IF NOT EXISTS ", 
-                  DBI::dbQuoteIdentifier(con, tname), " (", sc$ddl, ");"))
+    }
+    DBI::dbExecute(con, paste0("CREATE TABLE IF NOT EXISTS ",
+                DBI::dbQuoteIdentifier(con, tname), " (", sc$ddl, ");"))
 
-    # read header
     peek_sql <- paste0(
       "SELECT * FROM read_csv_auto('", gsub("'", "''", fpath), "'",
       ", header=true, sample_size=1000, normalize_names=true",
@@ -131,7 +128,6 @@ trinetx_ingest <- function(dict_xlsx,
     )
     file_cols <- names(DBI::dbGetQuery(con, peek_sql))
 
-    # build field list (using the improved strptime handling)
     qid <- function(x) DBI::dbQuoteIdentifier(con, x)
 
     fields <- sc$fields
@@ -139,9 +135,8 @@ trinetx_ingest <- function(dict_xlsx,
     fmts <- trimws(df$Format)
 
     present <- fields %in% file_cols
-    
-    sel_parts <- mapply(function(f, t, fmt, pres) {
 
+    sel_parts <- mapply(function(f, t, fmt, pres) {
       f_q <- as.character(qid(f))
 
       if (!pres) return(sprintf("CAST(NULL AS %s) AS %s", t, f_q))
@@ -156,7 +151,7 @@ trinetx_ingest <- function(dict_xlsx,
         return(sprintf("CAST(strptime(CAST(%s AS VARCHAR), '%s') AS DATE) AS %s", f_q, fmt, f_q))
       }
 
-      sprintf("CAST(%s AS %s) AS %s", f_q, t, f_g)
+      sprintf("CAST(%s AS %s) AS %s", f_q, t, f_q)   # <-- fixed: f_g -> f_q
 
     }, fields, types, fmts, present, USE.NAMES = FALSE)
 
@@ -175,6 +170,7 @@ trinetx_ingest <- function(dict_xlsx,
               DBI::dbQuoteIdentifier(con, tname)))$n
     took <- round(difftime(Sys.time(), t0, units = "mins"), 1)
     cat(sprintf("  ✔ %s rows loaded (%.1f min)\n", format(n, big.mark=","), took))
+    results[[tname]] <- n
   }
 
   cat("\nAll done in", round(difftime(Sys.time(), start_time, units = "mins"), 1), "minutes\n")
