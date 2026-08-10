@@ -14,8 +14,9 @@ dmplusd_make_db_py <- function(filePath,dbPath=dirname(filePath),dbName=NULL,
     dbName <- file.path(dbPath,dbname)
     xml_config <- system.file("xml","dmd_structure.xml",package="rtrhd")
   }
-  reticulate::py_install("xmltodict")
-
+  if(!reticulate::py_module_available("xmltodict")){
+    reticulate::py_install("xmltodict")
+  }
   reticulate::source_python(system.file("python","xml_to_dataframe.py",package="rtrhd"))
   file_list <- rtrhd::get_xml_config(xml_config)
   makedb <- lapply(file_list,rtrhd::add_xml_data,filePath,dbName)
@@ -49,6 +50,7 @@ get_xml_config <- function(xml_conf){
 #'
 #' @export
 get_xml_data <- function(fl,dmddir,db=F){
+  reticulate::source_python(system.file("python","xml_to_dataframe.py",package="rtrhd"))
   if(db){
     fl <- file_list[[1]]
   }
