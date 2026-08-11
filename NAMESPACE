@@ -80,21 +80,29 @@ import(ggplot2)
 import(magrittr)
 import(readr)
 import(stringr)
-importFrom(DBI,dbConnect)
-importFrom(DBI,dbDisconnect)
-importFrom(DBI,dbExecute)
-importFrom(DBI,dbExistsTable)
-importFrom(DBI,dbGetQuery)
-importFrom(DBI,dbListFields)
-importFrom(DBI,dbQuoteIdentifier)
-importFrom(dplyr,filter)
-importFrom(dplyr,mutate)
-importFrom(dplyr,pull)
+importFrom(DBI,
+  dbConnect,
+  dbDisconnect,
+  dbExecute,
+  dbExistsTable,
+  dbGetQuery,
+  dbListFields,
+  dbQuoteIdentifier
+)
+importFrom(dplyr,
+  filter,
+  mutate,
+  pull
+)
 importFrom(magrittr,"%>%")
-importFrom(stringr,str_detect)
-importFrom(stringr,str_to_lower)
+importFrom(stringr,
+  str_detect,
+  str_to_lower
+)
 importFrom(tibble,tibble)
 importFrom(tidyr,expand_grid)
 importFrom(tools,file_path_sans_ext)
-importFrom(utils,read.delim)
-importFrom(utils,unzip)
+importFrom(utils,
+  read.delim,
+  unzip
+)

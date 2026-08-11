@@ -30,7 +30,7 @@ summarise_snomed_ancestors_safe <- function(
   full_trace = FALSE,
   lang_refset_id = '999000691000001104'
 ) {
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path, threads = threads)
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), dbdir = db_path, threads = threads)
   on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
 
   # Copy stopwords into DuckDB

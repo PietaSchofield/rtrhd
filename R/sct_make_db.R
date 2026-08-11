@@ -42,11 +42,9 @@ sct_make_db <- function(dbPath, txtPath, dbName = NULL, db = FALSE, ow = FALSE,
 
   if (!is.null(incterm)) {
     term_files <- term_files[gsub("^terminology_", "", names(term_files)) %in% incterm]
-    if (length(term_files) == 0) 
+    if (length(term_files) == 0)
       stop("No matching terminology tables found for: ", paste(incterm, collapse = ", "))
   }
-
-  lapply(names(term_files), load_sct_file, dbf = dbFile, filelist = term_files, ow = ow)
 
   ## Load refset files
   ref_files <- list.files(txtPath, pattern = "der.*txt", recursive = TRUE, full.names = TRUE)
@@ -61,11 +59,20 @@ sct_make_db <- function(dbPath, txtPath, dbName = NULL, db = FALSE, ow = FALSE,
 
   if (!is.null(increfs)) {
     ref_files <- ref_files[gsub("^refset_", "", names(ref_files)) %in% increfs]
-    if (length(ref_files) == 0) 
+    if (length(ref_files) == 0)
       stop("No matching refset tables found for: ", paste(increfs, collapse = ", "))
   }
 
-  lapply(names(ref_files), load_sct_file, dbf = dbFile, filelist = ref_files, ow = ow)
+  ## Single connection for the whole build — was previously one open+full-shutdown
+  ## PER FILE inside load_sct_file(), which (a) caused DuckDB's one-time
+  ## "storing extensions under ~/.duckdb" notice to reprint once per table
+  ## instead of once ever, and (b) restarted DuckDB's driver state repeatedly
+  ## for no reason. One connection, held for the whole load, fixes both.
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), dbFile)
+  on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
+
+  all_files <- c(term_files, ref_files)
+  lapply(names(all_files), load_sct_file, con = con, filelist = all_files, ow = ow)
 
   return(dbFile)
 }
@@ -75,16 +82,13 @@ sct_make_db <- function(dbPath, txtPath, dbName = NULL, db = FALSE, ow = FALSE,
 #' Loads one file into a DuckDB table, skipping or overwriting as specified.
 #'
 #' @param tab Table name.
-#' @param dbf Path to DuckDB file.
+#' @param con An open DBI connection to the target DuckDB database.
 #' @param filelist Named list of filenames.
 #' @param ow Overwrite if table exists? (default FALSE)
 #'
 #' @return NULL (invisible), or result from load_table
 #' @export
-load_sct_file <- function(tab, dbf, filelist, ow = FALSE) {
-  con <- DBI::dbConnect(duckdb::duckdb(), dbf)
-  on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
-
+load_sct_file <- function(tab, con, filelist, ow = FALSE) {
   if (tab %in% DBI::dbListTables(con)) {
     if (!ow) {
       message("Skipping existing table: ", tab)
@@ -93,12 +97,10 @@ load_sct_file <- function(tab, dbf, filelist, ow = FALSE) {
       warning("Overwriting existing table: ", tab)
     }
   }
-
   rtrhd::load_table(
     filename = filelist[[tab]],
-    dbf = dbf,
+    con      = con,
     tab_name = tab,
-    ow = ow
+    ow       = ow
   )
 }
-

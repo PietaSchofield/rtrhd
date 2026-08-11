@@ -2,12 +2,13 @@
 % Please edit documentation in R/load_table.R
 \name{load_table}
 \alias{load_table}
-\title{get the drugissue records and convert some fields to useful field types}
+\title{Load a table}
 \usage{
 load_table(
   filename = NULL,
   dataset = NULL,
-  dbf,
+  dbf = NULL,
+  con = NULL,
   ow = F,
   db = F,
   append = F,
@@ -17,17 +18,6 @@ load_table(
   quote = ""
 )
 }
-\arguments{
-\item{bdir}{the name of the batch subdirectory}
-
-\item{odir}{the name of the output directory}
-
-\item{olist}{the list of observation codes}
-
-\item{bpp}{BiocParallal Multicore Parameters
-
-Pass a table of covariate codes and generate covariates table}
-}
 \description{
-get the drugissue records and convert some fields to useful field types
+Load a table
 }

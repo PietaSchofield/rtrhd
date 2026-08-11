@@ -133,7 +133,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
            else         tolower(paste0(dset, "_", fname0))
 
   # get existing tables
-  dbc_tmp <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = FALSE)
+  dbc_tmp <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbf, write = FALSE)
   tabs <- DBI::dbListTables(dbc_tmp)
   DBI::dbDisconnect(dbc_tmp)
 
@@ -159,7 +159,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
     append_problem_rows <- function(df) {
       if (is.null(df) || !nrow(df)) return(invisible())
       if (isTRUE(log_to_duckdb)) {
-        conl <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
+        conl <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbf, write = TRUE)
         if (!DBI::dbExistsTable(conl, log_table)) {
           DBI::dbExecute(conl, sprintf(
             "CREATE TABLE %s (when_ts TIMESTAMP, table_name VARCHAR, file VARCHAR,
@@ -271,7 +271,7 @@ load_file_with_data_dictionary <- function(fname, ddict, ddir, dbf, proto, dset,
       # rename cols (lowercase, safe) after reading
       if (!is.null(dat) && nrow(dat)) {
 #        names(dat) <- norm(names(dat))
-        conw <- duckdb::dbConnect(duckdb::duckdb(), dbf, write = TRUE)
+        conw <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbf, write = TRUE)
         DBI::dbWriteTable(conw, tname, dat, append = TRUE, overwrite = FALSE)
         DBI::dbDisconnect(conw)
         totals <- c(totals, nrow(dat))

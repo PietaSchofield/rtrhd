@@ -37,7 +37,7 @@ get_table <- function(dbf, sqlstr = NULL, tabname = NULL, fields = '*',
     strsql <- paste("PRAGMA enable_profiling='graphviz';EXPLAIN ANALYZE", strsql)
   }
 
-  dbi <- duckdb::dbConnect(duckdb::duckdb(), dbf)
+  dbi <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbf)
   result <- DBI::dbGetQuery(dbi, strsql) %>% tibble()
   duckdb::dbDisconnect(dbi, shutdown = TRUE)
 

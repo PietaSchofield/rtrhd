@@ -4,12 +4,12 @@
 \alias{load_sct_file}
 \title{Load a single SNOMED CT file into DuckDB}
 \usage{
-load_sct_file(tab, dbf, filelist, ow = FALSE)
+load_sct_file(tab, con, filelist, ow = FALSE)
 }
 \arguments{
 \item{tab}{Table name.}
 
-\item{dbf}{Path to DuckDB file.}
+\item{con}{An open DBI connection to the target DuckDB database.}
 
 \item{filelist}{Named list of filenames.}
 

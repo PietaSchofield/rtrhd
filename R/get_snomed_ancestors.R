@@ -52,7 +52,7 @@ get_snomed_ancestors <- function(
   }
 
   # ---- DB query ----
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), dbdir = db_path)
 
   query <- glue::glue("
   WITH RECURSIVE ancestry AS (

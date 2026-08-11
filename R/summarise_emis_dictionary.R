@@ -36,7 +36,7 @@ summarise_snomed_ancestors <- function(
   }
 
   # ---- open DuckDB with threads ----
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path, threads = threads)
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), dbdir = db_path, threads = threads)
 
   # ---- recursive query for all ancestors ----
   query <- glue::glue("

@@ -1,41 +1,35 @@
-# get observations batch
+#' Load a table
 #'
-#' get the drugissue records and convert some fields to useful field types
-#'
-#' @param bdir the name of the batch subdirectory
-#' @param odir the name of the output directory
-#' @param olist the list of observation codes
-#' @param bpp BiocParallal Multicore Parameters
-#'
-#'
-#' Pass a table of covariate codes and generate covariates table
-#' @import magrittr
 #' @export
-load_table <- function(filename=NULL,dataset=NULL,dbf,ow=F,db=F,append=F,
-                       tab_name=gsub("(^[0-9]*_|[.].*)","",basename(filename)), 
+load_table <- function(filename=NULL,dataset=NULL,dbf=NULL,con=NULL,ow=F,db=F,append=F,
+                       tab_name=gsub("(^[0-9]*_|[.].*)","",basename(filename)),
                        selvars=NULL,delim="\t",quote=""){
   nrec <- 0
+
+  if(is.null(con) && is.null(dbf)){
+    stop("load_table() needs either 'con' (an open connection) or 'dbf' (a path).")
+  }
+
+  ## Own the connection lifecycle only if we opened it ourselves.
+  ## Was: every call opened + fully shut down its own connection —
+  ## fine in isolation, but murder in a loop (see sct_make_db) where
+  ## it meant hundreds of connect/shutdown cycles for one logical build.
+  own_con <- is.null(con)
+  dbi <- if (own_con) duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbf) else con
+
   if(!is.null(filename)){
     if(file.exists(filename)){
-      dbi <- duckdb::dbConnect(duckdb::duckdb(),dbf)
-      #
-      # If table doesn't exist or if we are overwriting or appending
-      #
       if(!tab_name%in%duckdb::dbListTables(dbi) || ow || append){
-        #
-        # If we are overwriting lets just drop it now
-        #
         if(ow){
           DBI::dbExecute(dbi,paste0("DROP TABLE IF EXISTS ",tab_name))
         }
         dat <- readr::read_delim(filename,col_types=readr::cols(.default=readr::col_character()),
-                                 delim=delim,quote="") 
-        if(!is.null(selvars)) dat <- dat %>% dplyr::select(dplyr::all_of(selvars)) 
+                                 delim=delim,quote="")
+        if(!is.null(selvars)) dat <- dat |> dplyr::select(dplyr::all_of(selvars))
         if(!db) duckdb::dbWriteTable(dbi,tab_name,dat,overwrite=ow,append=append)
-        nrec <- dat %>% nrow()
+        nrec <- dat |> nrow()
         cat(paste0(basename(filename),": ",nrec," records loaded\n"))
         rm(dat)
-        duckdb::dbDisconnect(dbi,shutdown=T)
         gc()
       }else{
         cat(paste0(tab_name," exists\n"))
@@ -45,23 +39,24 @@ load_table <- function(filename=NULL,dataset=NULL,dbf,ow=F,db=F,append=F,
     }
   }else{
     if(!is.null(dataset)){
-      dbi <- duckdb::dbConnect(duckdb::duckdb(),dbf)
       if(!tab_name%in%duckdb::dbListTables(dbi) || ow || append){
         if(ow){
           DBI::dbExecute(dbi,paste0("DROP TABLE IF EXISTS ",tab_name))
         }
         dat <- dataset
         names(dataset) <- tolower(names(dataset))
-        if(!is.null(selvars)) dat <- dat %>% dplyr::select(dplyr::all_of(selvars)) 
+        if(!is.null(selvars)) dat <- dat |> dplyr::select(dplyr::all_of(selvars))
         if(!db) duckdb::dbWriteTable(dbi,tab_name,dat,overwrite=F,append=T)
-        nrec <- dat %>% nrow()
+        nrec <- dat |> nrow()
         cat(paste0(tab_name,": ",nrec," records loaded\n"))
         rm(dat)
-        duckdb::dbDisconnect(dbi,shutdown=T)
       }
     }else{
       cat(paste("Nothing to load\n"))
     }
   }
+
+  if (own_con) duckdb::dbDisconnect(dbi, shutdown = TRUE)
+
   return(cat(paste0(nrec," records processed\n")))
 }

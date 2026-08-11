@@ -45,7 +45,7 @@ handled later during analysis.
 }
 \examples{
 \dontrun{
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = "gold.duckdb")
+con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), dbdir = "gold.duckdb")
 loaded <- gold_import(
   root_dir   = "/path/to/root/with/subdirs",
   con        = con,

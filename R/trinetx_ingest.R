@@ -56,7 +56,7 @@ trinetx_ingest <- function(dict_xlsx,
     list(fields = fields, types = types, ddl = ddl)
   }
 
-  con <- DBI::dbConnect(duckdb::duckdb(), db_path)
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), db_path)
   DBI::dbExecute(con, sprintf("PRAGMA threads=%d;", max(1, parallel::detectCores() - 2)))
   DBI::dbExecute(con, "PRAGMA memory_limit='32GB';")
   on.exit(try(DBI::dbDisconnect(con, shutdown = TRUE), silent = TRUE), add = TRUE)

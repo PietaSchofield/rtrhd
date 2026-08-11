@@ -87,7 +87,7 @@ drugbank_xml2duckdb <- function(xml_file, duckdb_file, batchsize = 1000, overwri
   reticulate::py_run_string(pystring)
 
   # Deduplicate the database
-  con <- DBI::dbConnect(duckdb::duckdb(), duckdb_file)
+  con <- DBI::dbConnect(duckdb::duckdb(shared_home = FALSE), duckdb_file)
   if(!"drugbank" %in% dbListTables(con)){
     drugbank_dedup <- tbl(con, "drugbank_long") |> distinct() |>
     compute(name = "drugbank_long_dedup", temporary = FALSE)

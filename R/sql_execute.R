@@ -12,7 +12,7 @@ sql_execute <- function(dbf,sql_make,sql_query=NULL,sql_drop=NULL,db=F){
     sql_drop
   }
   # Connect to your DuckDB database
-  con <- duckdb::dbConnect(duckdb::duckdb(), dbdir = dbf, write=T)
+  con <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE), dbdir = dbf, write=T)
 
   # Register and execute the external SQL script
   nret <- DBI::dbExecute(con, sql_make)

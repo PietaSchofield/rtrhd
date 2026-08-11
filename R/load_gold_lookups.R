@@ -32,7 +32,7 @@ load_gold_lookups <- function(pddir,dbf,ow=T,db=F,inctxt="TXTFILES",dropcodes=T,
                              locale=locale(encoding="ISO-8859-1")) 
       problems(dat)
       names(dat) <- tolower(names(dat))
-      dbi <- duckdb::dbConnect(duckdb::duckdb(),dbf)
+      dbi <- duckdb::dbConnect(duckdb::duckdb(shared_home = FALSE),dbf)
       duckdb::dbWriteTable(dbi,fn,dat,overwrite=T)
       duckdb::dbDisconnect(dbi,shutdown=T)
       nr <- dat %>% nrow()
