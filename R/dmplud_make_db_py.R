@@ -54,11 +54,40 @@ get_xml_data <- function(fl,dmddir,db=F){
   if(db){
     fl <- file_list[[1]]
   }
-  fn <- list.files(file.path(dmddir,"xml"),pattern=fl$file_name,recur=T,full=T)
+
+  if(!dir.exists(dmddir)){
+    stop("dmd+d directory not found: '", dmddir, "'. Check filePath/dmddir argument.")
+  }
+
+  # find candidates by pattern (recursive - handles xml/ subdir or flat layout)
+  fn <- list.files(dmddir, pattern=fl$file_name, recursive=TRUE, full.names=TRUE, ignore.case=TRUE)
+
+  # enforce .xml extension regardless of whether the config pattern did
+  fn <- fn[tolower(tools::file_ext(fn)) == "xml"]
+
+  if(length(fn) == 0){
+    stop(
+      "No .xml file found matching pattern '", fl$file_name, "' ",
+      "for table '", fl$table_name, "' under '", dmddir, "' (searched recursively).\n",
+      "Check that: (1) the dm+d files have been extracted into this directory, ",
+      "(2) the file_name pattern in the xml config matches the actual filename, ",
+      "and (3) you're not accidentally matching only the .xsd schema file."
+    )
+  }
+
+  if(length(fn) > 1){
+    stop(
+      "Multiple files matched pattern '", fl$file_name, "' ",
+      "for table '", fl$table_name, "' under '", dmddir, "':\n",
+      paste("  -", fn, collapse="\n"), "\n",
+      "The pattern needs to be more specific - only one .xml file should match per table."
+    )
+  }
+
   dsk <- fl$dataset_key
   rsk <- fl$rows_key
   rnk <- fl$rowname_key
-  xml_to_dataframe(fn,dsk,rsk,rnk)  
+  xml_to_dataframe(fn,dsk,rsk,rnk)
 }
 
 #' add xml data
@@ -72,8 +101,14 @@ add_xml_data <- function(fl,dmddir,dbfile,db=F){
   }
   tn <- fl$table_name
   dat <- get_xml_data(fl,dmddir)
-  if(nrow(dat)>0){
-    rtrhd::load_table(dbf=dbfile,dataset=dat,tab_name=tn,ow=T)
+
+  if(is.null(dat) || nrow(dat)==0){
+    warning("Table '", tn, "' produced 0 rows from source matching '", fl$file_name,
+            "' - skipping load_table. Check the XML content/keys (dataset_key='",
+            fl$dataset_key, "', rows_key='", fl$rows_key, "').")
+    return(invisible(NULL))
   }
+
+  rtrhd::load_table(dbf=dbfile,dataset=dat,tab_name=tn,ow=T)
 }
 
