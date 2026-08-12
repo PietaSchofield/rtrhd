@@ -158,7 +158,7 @@ rtrhd::list_db(dbname)
 
 ```{r ta-dah_R, comment=NA}
 # connect to the database
-dbcon <- DBI::dbConnect(duckdb::duckdb(),dbname,read_only=T)
+dbcon <- DBI::dbConnect(duckdb::duckdb(shared_home=FALSE),dbname,read_only=T)
 # build the query
 dementia_trends <- tbl(dbcon,"emis_observation") |>
   inner_join(tbl(dbcon,"coi_emis_dementia"), by = "medcodeid") |>
@@ -219,7 +219,7 @@ cat(paste0("\n\n![Dementia trends plot](",figfile,")\n\n"))
 ## Step 1.
 
 ```{r take2_1_R, comment=NA}
-dbcon <- DBI::dbConnect(duckdb::duckdb(), dbname, read_only=T)
+dbcon <- DBI::dbConnect(duckdb::duckdb(shared_home=FALSE), dbname, read_only=T)
 dementia_trends <- tbl(dbcon, "emis_observation") |>
   inner_join(tbl(dbcon, "coi_emis_dementia"), by = "medcodeid") |>
   inner_join(tbl(dbcon, "emis_patient"), by = c("patid","pracid")) |>
