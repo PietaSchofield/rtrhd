@@ -70,7 +70,7 @@ tohtml <- TRUE
 - "CPRD fob-holder" has done that and you now have your 9 zipped files (13GB)
 - Copy them from CPRDGeneralinfo drive to a University asset you have read/write access to
    - options university desktop / laptop / active data storage network drive (preferable)
-   - __do not copy to unencrypted non_password protected devices (eg. penstick, personal laptops)__
+   - __do not copy to unencrypted non_password protected devices (eg. penstick, pers laptops)__
 - Unzip the compressed files into the 93 tab delimited text files (82GB)
 
 ## Load
@@ -367,7 +367,7 @@ remotes::install_github("PietaSchofield/rtrhd")
     - drawing two ggplots
     - __< 15 seconds__
 
-# Thank You </br>pietas@liverpool.ac.uk</br>[https://github.com/PietaSchofield](https://github.com/PietaSchofield)
+# Thank You </br>pietas@uol.ac.uk</br>[https://github.com/PietaSchofield](https://github.com/PietaSchofield)
 
 ```{r build-it_html, comment=NA,eval=F,echo=F}
 #
@@ -376,7 +376,7 @@ remotes::install_github("PietaSchofield/rtrhd")
 outfile <- file.path("/srv","http","uol","rtrhd","index.html")
 dir.create(dirname(outfile), showW=F)
 rmarkdown::render(
- input=file.path(Sys.getenv("HOME"),"GitLab","github","rtrhd","index.Rmd"),
+ input=file.path(Sys.getenv("HOME"),"Repos","github","rtrhd","index.Rmd"),
  output_file=outfile
  )
 ```

@@ -2,7 +2,7 @@ Package: rtrhd
 Title: R Tools For Routine Healthcare Data
 Version: 0.1.1
 Authors@R: 
-    person("Pieta", "Schofield", , "pieta.schofield@liverpool.ac.uk", role = c("aut", "cre"),
+    person("Pieta", "Schofield", , "pieta.schofield@uol.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6398-2537"))
 Description: This is a collection of convenience functions generally for turning routinely collected
   health care data from sources like CPRD into duckdb databases to enable SQL based filtering and selection

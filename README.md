@@ -227,7 +227,7 @@ res %>% ggplot(aes(x=observations)) + geom_histogram(binwidth=10,fill="blue",col
        y="Frequency") + theme_minimal()
 ```
 
-![](/home/pietas/GitLab/rtrhd/README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](/home/pietas/Repos/rtrhd/README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ## END SQL BLOCK
@@ -267,7 +267,7 @@ This is the code that built the vignette and the README markdown for the GitHub 
 
 ``` r
 homeDir <- Sys.getenv("HOME")
-packagepath <- file.path(homeDir,"GitLab","rtrhd")
+packagepath <- file.path(homeDir,"Repos","rtrhd")
 inputpath <- file.path(packagepath,"vignettes")
 inputFile <- file.path(inputpath,"rtrhd_demo.Rmd")
 noteDir <- file.path("/srv","http","uol","rtrhd")
