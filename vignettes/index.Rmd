@@ -376,7 +376,7 @@ remotes::install_github("PietaSchofield/rtrhd")
 outfile <- file.path("/srv","http","uol","rtrhd","index.html")
 dir.create(dirname(outfile), showW=F)
 rmarkdown::render(
- input=file.path(Sys.getenv("HOME"),"repositories","github","rtrhd","index.Rmd"),
+ input=file.path(Sys.getenv("HOME"),"repositories","rtrhd","index.Rmd"),
  output_file=outfile
  )
 ```
