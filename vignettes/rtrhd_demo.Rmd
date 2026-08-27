@@ -180,7 +180,7 @@ This is the code that built the vignette and the README markdown for the GitHub 
 
 ```{r buildit, eval=F}
 homeDir <- Sys.getenv("HOME")
-packagepath <- file.path(homeDir,"Repos","rtrhd")
+packagepath <- file.path(homeDir,"repositories","rtrhd")
 inputpath <- file.path(packagepath,"vignettes")
 inputFile <- file.path(inputpath,"rtrhd_demo.Rmd")
 noteDir <- file.path("/srv","http","uol","rtrhd")
